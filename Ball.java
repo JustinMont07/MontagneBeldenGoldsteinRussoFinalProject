@@ -113,7 +113,17 @@ import javax.swing.*;
 
     }
 
-   
+    /**
+     * Set the Image to be used by all Ball objects, to be
+     * called by the main method before the GUI gets set up
+     */
+    public Point getLocation() {
+
+       
+
+        return new Point(upperLeft.x + 15, upperLeft.y + 15);
+    }
+
 
 
 

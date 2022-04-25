@@ -44,6 +44,8 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 
 	private Image field;
 
+	private int clickCount;
+
 	// Start BaseballGame object which will draw the BaseballGame as it grows and
 	// allow us to get the final size of it
 	// private Baseball b;
@@ -91,18 +93,19 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 				super.paintComponent(g);
 				g.drawImage(field, 0, 0, null);
 
+				//border
 				g.setColor(Color.BLACK);
 				g.drawRect(369, 600, 60, 120);
 
-				// red
+				// red - early  - 
 				g.setColor(new Color(230, 0, 0, 100));
 				g.fillRect(369, 600, 60, 40);
 
-				// Green
+				// Green - middle - 
 				g.setColor(new Color(0, 234, 0, 100));
 				g.fillRect(369, 640, 60, 40);
 
-				// blue
+				// blue - late - 
 				g.setColor(new Color(0, 0, 222, 100));
 				g.fillRect(369, 680, 60, 40);
 
@@ -188,6 +191,7 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	@Override
 	public void mousePressed(MouseEvent e) {
 
+		//ball drops from homebase 
 		if (list.size() == 0) {
 
 			Ball newBall = new Ball(new Point(433, 470), panel, 5);
@@ -198,8 +202,58 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 			// JVM have set up the thread
 			newBall.start();
 			panel.repaint();
+			clickCount++;
+
+
+		}else if(list.size() > 0 && clickCount ==1) {
+			//have second hit 
+			
+			int location = contains(((Ball)list.get(0)).getLocation());
+			if( location == 1){
+				System.out.print("1");
+
+			}
+			else if( location == 2){
+				System.out.print("2");
+
+			}
+		    else if( location == 3){
+				System.out.print("3");
+
+			}
+
+			else{
+				System.out.print("missed");
+
+			}
+			clickCount = 0;
 		}
+
+
 	}
+	public int contains(Point p) {
+		if( p.x >= 369  && p.x <= 369+ 60 &&
+		p.y >= 600 && p.y <= 600  + 40){
+
+			return 1;
+
+		}else if( p.x >= 369  && p.x <= 369+ 60 &&
+		p.y >= 640 && p.y <= 640 + 40){
+			return 2;
+
+		}else if(p.x >= 369  && p.x <= 369+ 60 &&
+		p.y >= 680 && p.y <= 680 + 40){
+
+		return 3;
+
+		}
+		return 0;
+	
+		
+
+	}
+
+
 
 	public static void main(String args[]) {
 

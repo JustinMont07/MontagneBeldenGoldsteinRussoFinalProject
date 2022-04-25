@@ -74,5 +74,12 @@ public abstract class AnimatedGraphicsObject extends Thread {
      */
     @Override
     public abstract void run();
+
+    
+  
+
+       
+
+
 }
 
