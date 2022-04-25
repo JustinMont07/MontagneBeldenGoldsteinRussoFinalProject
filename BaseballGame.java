@@ -169,7 +169,7 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	@Override
 	public void mousePressed(MouseEvent e) {
 
-		Ball newBall = new Ball(e.getPoint(), panel,5);
+		Ball newBall = new Ball(new Point(433,470), panel,5);
 		list.add(newBall);
 
 		// calling start on the object that extends Thread results in
