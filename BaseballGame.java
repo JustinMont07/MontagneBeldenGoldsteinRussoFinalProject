@@ -17,7 +17,7 @@ import javax.swing.*;
 public class BaseballGame extends MouseAdapter implements Runnable {
 
 	//The message to be displayed if no BaseballGames on screen
-	private static final String INSTRUCTION_MESSAGE = "Press and hold the mouse to blow a BaseballGame, release to set it free!";
+	private static final String INSTRUCTION_MESSAGE = "";
 
 	// list of BaseballGame objects currently in existence
 	private java.util.List<BaseballGame> list;
@@ -35,9 +35,9 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 
     private JPanel scoreBoard;
 
-    private int[] team1 = new int[5];
+    private int[] team1Score = new int[5];
 
-    private int[] team2 = new int[5];
+    private int[] team2Score = new int[5];
 
     private JLabel labels[][] = new JLabel[3][6];
 
@@ -70,7 +70,7 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 
 		// create a JFrame in which we will build our very
 		// tiny GUI, and give the window a name
-		JFrame frame = new JFrame("BaseballGameBlower");
+		JFrame frame = new JFrame("BaseballGame");
 		frame.setPreferredSize(new Dimension(800, 800));
 
 		// tell the JFrame that when someone closes the
@@ -139,48 +139,17 @@ public class BaseballGame extends MouseAdapter implements Runnable {
         labels[1][0].setText("Team1");
         labels[2][0].setText("Team2");
         
-        
-        scoreBoard.add(labels[0][0]);
-        scoreBoard.add(labels[0][1]);
-        scoreBoard.add(labels[0][2]);
-        scoreBoard.add(labels[0][3]);
-        scoreBoard.add(labels[0][4]);
-        scoreBoard.add(labels[0][5]);
-        scoreBoard.add(labels[1][0]);
-        scoreBoard.add(labels[1][1]);
-        scoreBoard.add(labels[1][2]);
-        scoreBoard.add(labels[1][3]);
-        scoreBoard.add(labels[1][4]);
-        scoreBoard.add(labels[1][5]);
-        scoreBoard.add(labels[2][0]);
-        scoreBoard.add(labels[2][1]);
-        scoreBoard.add(labels[2][2]);
-        scoreBoard.add(labels[2][3]);
-        scoreBoard.add(labels[2][4]);
-        scoreBoard.add(labels[2][5]);
-        
+        for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 6 ; j++){
+            	scoreBoard.add(labels[i][j]);
+				labels[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
+			}
+		}
+		
         scoreBoard.setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[0][1].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[0][2].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[0][3].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[0][4].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[0][5].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[1][1].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[1][2].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[1][3].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[1][4].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[1][5].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[2][1].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[2][2].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[2][3].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[2][4].setBorder(BorderFactory.createLineBorder(Color.black));
-        labels[2][5].setBorder(BorderFactory.createLineBorder(Color.black));
-        
-        
-
+		
 		panel.addMouseListener(this);
-        
-
+    
 		// construct the list
 		list = new ArrayList<BaseballGame>();
 
