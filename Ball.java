@@ -27,7 +27,14 @@ import javax.swing.*;
     // how far to fall?
     private int bottom;
 
-   
+
+    private static Image baseballPic;
+
+
+    private static final String ballPicFilename = "baseball.gif";
+
+
+
     // who do we live in so we can repaint?
     private JComponent container;
 
@@ -43,7 +50,7 @@ import javax.swing.*;
     public Ball(Point startTopCenter, JComponent container, int ySpeed) {
         super(container);
 
-        upperLeft = new Point(startTopCenter.x  / 2, startTopCenter.y);
+        upperLeft = new Point(startTopCenter.x - 100 / 2, startTopCenter.y);
         this.bottom = container.getHeight();
         this.container = container;
         this.ySpeed = ySpeed;
@@ -58,6 +65,8 @@ import javax.swing.*;
 
        // g.fillOval(upperLeft.x, upperLeft.y, SIZE, SIZE);
 
+       g.drawImage(baseballPic, upperLeft.x, upperLeft.y, null);
+
 
     }
 
@@ -71,7 +80,7 @@ import javax.swing.*;
         // the run method is what runs in this object's thread for the
         // time it is "alive"
 
-        // this FallingBall's life as a thread will continue as long as this
+        // this Ball's life as a thread will continue as long as this
         // ball is still located on the visible part of the screen
         while (upperLeft.y < bottom) {
 
@@ -91,6 +100,21 @@ import javax.swing.*;
 
         done = true;
     }
+  /**
+     * Set the Image to be used by all Ball objects, to be
+     * called by the main method before the GUI gets set up
+     */
+    public static void loadBallPic() {
+
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+
+         Ball.baseballPic = toolkit.getImage(ballPicFilename).getScaledInstance(30, 30, Image.SCALE_DEFAULT);
+
+
+    }
+
+   
+
 
 
 }

@@ -20,7 +20,7 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	private static final String INSTRUCTION_MESSAGE = "";
 
 	// list of BaseballGame objects currently in existence
-	private java.util.List<BaseballGame> list;
+	private java.util.List<AnimatedGraphicsObject> list;
 
 	private JPanel panel;
 
@@ -89,18 +89,18 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 
 				// redraw each BaseballGame's contents, and along the
 				// way, remove the ones that are popped
-                /**
+                
 				int i = 0;
 				while (i < list.size()) {
-					BaseballGame b = list.get(i);
-					if (b.popped()) {
+					AnimatedGraphicsObject b = list.get(i);
+					if (b.done()) {
 						list.remove(i);
 					} else {
 						b.paint(g);
 						i++;
 					}
 				}
-                */
+                
 				//Checks if list is empty and that the user isn't currently making a BaseballGame. Displays a message in 
 				//the center of window telling you how to make a new BaseballGame
                 /**
@@ -151,16 +151,41 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 		panel.addMouseListener(this);
     
 		// construct the list
-		list = new ArrayList<BaseballGame>();
+		list = new ArrayList<AnimatedGraphicsObject>();
 
 		// display the window we've created
 		frame.pack();
 		frame.setVisible(true);
         frame.setResizable(false);
 	}
+
+
+	 /**
+	 * Mouse press event handler to create a new FallingBall with its top
+	 * centered at the press point.
+	 * 
+	 * @param e mouse event info
+	 */
+	@Override
+	public void mousePressed(MouseEvent e) {
+
+		Ball newBall = new Ball(e.getPoint(), panel,5);
+		list.add(newBall);
+
+		// calling start on the object that extends Thread results in
+		// its run method being called once the operating system and
+		// JVM have set up the thread
+		newBall.start();
+		panel.repaint();
+	}
+
+
     public static void main(String args[]) {
+
+		Ball.loadBallPic();
 
 		// launch the main thread that will manage the GUI
 		javax.swing.SwingUtilities.invokeLater(new BaseballGame());
+
 	}
 }
