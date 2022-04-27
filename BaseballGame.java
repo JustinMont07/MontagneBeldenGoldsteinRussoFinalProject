@@ -18,7 +18,7 @@ import javax.swing.border.Border;
 public class BaseballGame extends MouseAdapter implements Runnable {
 
 	// The message to be displayed if no BaseballGames on screen
-	private static final String INSTRUCTION_MESSAGE = "";
+	private String displayText = "";
 
 	// list of BaseballGame objects currently in existence
 	private java.util.List<AnimatedGraphicsObject> list;
@@ -41,6 +41,17 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	private int[] team2Score = new int[5];
 
 	private JLabel labels[][] = new JLabel[3][6];
+
+	// 5 points for hits, 5 points for outs, 1 for home run
+	private Point[] leftField = new Point[] {new Point(175, 200), new Point(250, 150), new Point(200, 325), new Point(250, 350), new Point(200, 250), new Point(250, 250), new Point(125, 125)};
+
+
+	// 5 points for hits, 5 points for outs, 1 for home run
+	private Point[] centerField = new Point[] {new Point(450, 250), new Point(325, 250), new Point(385, 100), new Point(385, 150), new Point(385, 300), new Point(385, 50)};
+
+	// 5 points for hits, 5 points for outs, 1 for home run
+	private Point[] rightField = new Point[] {new Point(520, 150), new Point(570, 325), new Point(600, 200), new Point(520, 350), new Point(520, 250), new Point(570, 250), new Point(650, 125)};
+
 
 	private Image field;
 
@@ -92,20 +103,29 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 				// overriding in JPanel
 				super.paintComponent(g);
 				g.drawImage(field, 0, 0, null);
+		
 
-				//border
+
+
+
+				// g.fillOval(250, 150, 30, 30);
+				// g.drawOval(200, 250, 30, 30);
+				// g.drawOval(250, 250, 30, 30);
+				// g.fillOval(200, 325, 30, 30);
+
+					// border
 				g.setColor(Color.BLACK);
 				g.drawRect(369, 600, 60, 120);
 
-				// red - early  - 
+				// red - early -
 				g.setColor(new Color(230, 0, 0, 100));
 				g.fillRect(369, 600, 60, 40);
 
-				// Green - middle - 
+				// Green - middle -
 				g.setColor(new Color(0, 234, 0, 100));
 				g.fillRect(369, 640, 60, 40);
 
-				// blue - late - 
+				// blue - late -
 				g.setColor(new Color(0, 0, 222, 100));
 				g.fillRect(369, 680, 60, 40);
 
@@ -126,22 +146,20 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 				// Checks if list is empty and that the user isn't currently making a
 				// BaseballGame. Displays a message in
 				// the center of window telling you how to make a new BaseballGame
-				/**
-				 * if (list.size() == 0 && !pressed) {
-				 * g.setColor(Color.black);
-				 * FontMetrics str = g.getFontMetrics();
-				 * int pHeight = this.getHeight();
-				 * int pWidth = this.getWidth();
-				 * int strWidth = str.stringWidth(INSTRUCTION_MESSAGE);
-				 * int ascent = (str.getAscent());
-				 * g.drawString(INSTRUCTION_MESSAGE, pWidth / 2 - (strWidth / 2), pHeight / 2 -
-				 * ascent);
-				 * }
-				 * 
-				 * if (pressed) {
-				 * b.paint(g);
-				 * }
-				 */
+				
+				 if (list.size() == 0 && !pressed) {
+				 g.setColor(Color.black);
+				 FontMetrics str = g.getFontMetrics();
+				 int pHeight = this.getHeight();
+				 int pWidth = this.getWidth();
+				 int strWidth = str.stringWidth(displayText);
+				 int ascent = (str.getAscent());
+				 g.drawString(displayText, pWidth / 2 - (strWidth / 2), pHeight / 2 -
+				 ascent);
+				 }
+				 
+				 
+				 
 
 			}
 		};
@@ -183,7 +201,7 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	}
 
 	/**
-	 * Mouse press event handler to create a new FallingBall with its top
+	 *Mouse press event handler to create a new FallingBall with its top
 	 * centered at the press point.
 	 * 
 	 * @param e mouse event info
@@ -191,7 +209,7 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	@Override
 	public void mousePressed(MouseEvent e) {
 
-		//ball drops from homebase 
+		// ball drops from homebase
 		if (list.size() == 0) {
 
 			Ball newBall = new Ball(new Point(433, 470), panel, 5);
@@ -204,60 +222,78 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 			panel.repaint();
 			clickCount++;
 
+		} else if (list.size() > 0 && clickCount == 1) {
+			// have second hit
 
-		}else if(list.size() > 0 && clickCount ==1) {
-			//have second hit 
+			Random r = new Random();
+
+			int location = contains(((Ball) list.get(0)).getLocation());
+
+			int hit = r.nextInt(7);
 			
-			int location = contains(((Ball)list.get(0)).getLocation());
-			if( location == 1){
-				System.out.print("1");
+			if (location == 1) {
+				Hit newHit = new Hit(new Point(433, 640), panel, leftField[hit]);
+
+				list.add(newHit);
+				newHit.start();
+				panel.repaint();
+
+				while(!newHit.done()) {
+				}
+				if (hit < 3) {
+					displayText = "hit!";
+				}
+				// if (hit == 4) {
+				// 	Hit newHit = new Hit(e.getPoint(), panel, leftField[10]);
+				// } else if (hit < 4) {
+				// 	Hit newHit = new Hit(e.getPoint(), panel, leftField[hit]);
+				// } else {
+				// 	Hit newHit = new Hit(e.getPoint(), panel, leftField[hit]);
+				// }
+				System.out.println("1");
+
+			} else if (location == 2) {
+				System.out.println("2");
+
+			} else if (location == 3) {
+				System.out.println("3");
 
 			}
-			else if( location == 2){
-				System.out.print("2");
 
-			}
-		    else if( location == 3){
-				System.out.print("3");
-
-			}
-
-			else{
+			else {
 				System.out.print("missed");
 
 			}
 			clickCount = 0;
 		}
 
-
 	}
+
 	public int contains(Point p) {
-		if( p.x >= 369  && p.x <= 369+ 60 &&
-		p.y >= 600 && p.y <= 600  + 40){
+		if (p.x >= 369 && p.x <= 369 + 60 &&
+				p.y >= 600 && p.y <= 600 + 40) {
 
 			return 1;
 
-		}else if( p.x >= 369  && p.x <= 369+ 60 &&
-		p.y >= 640 && p.y <= 640 + 40){
+		} else if (p.x >= 369 && p.x <= 369 + 60 &&
+				p.y >= 640 && p.y <= 640 + 40) {
 			return 2;
 
-		}else if(p.x >= 369  && p.x <= 369+ 60 &&
-		p.y >= 680 && p.y <= 680 + 40){
+		} else if (p.x >= 369 && p.x <= 369 + 60 &&
+				p.y >= 680 && p.y <= 680 + 40) {
 
-		return 3;
+			return 3;
 
 		}
 		return 0;
-	
-		
 
 	}
-
-
 
 	public static void main(String args[]) {
 
 		Ball.loadBallPic();
+		Hit.loadBallPic();
+
 
 		// launch the main thread that will manage the GUI
 		javax.swing.SwingUtilities.invokeLater(new BaseballGame());
