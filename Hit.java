@@ -116,13 +116,14 @@ import javax.swing.*;
     }
 
     public boolean near(Point s, Point e){
-        if(s.x + 50 > e.x -50 && s.x +50< e.x + 50){
-            if(s.y +50 > e.y -50 && s.y +50< e.y + 50)
+        if(s.x > e.x -50 && s.x < e.x + 50){
+            if(s.y > e.y -50 && s.y < e.y + 50)
                 return true;
         }
         return false;
     }
 
+    
     /**
      * Set the Image to be used by all Ball objects, to be
      * called by the main method before the GUI gets set up

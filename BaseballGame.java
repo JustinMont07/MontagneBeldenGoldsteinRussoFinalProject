@@ -43,14 +43,14 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	private JLabel labels[][] = new JLabel[3][6];
 
 	// 5 points for hits, 5 points for outs, 1 for home run
-	private Point[] leftField = new Point[] {new Point(175, 200), new Point(250, 150), new Point(200, 325), new Point(250, 350), new Point(200, 250), new Point(250, 250), new Point(125, 125)};
+	private Point[] leftField = new Point[] {new Point(175, 200), new Point(250, 150), new Point(200, 325), new Point(250, 350), new Point(200, 250), new Point(250, 250), new Point(125, 115)};
 
 
 	// 5 points for hits, 5 points for outs, 1 for home run
-	private Point[] centerField = new Point[] {new Point(450, 250), new Point(325, 250), new Point(385, 100), new Point(385, 150), new Point(385, 300), new Point(385, 50)};
+	private Point[] centerField = new Point[] {new Point(450, 250), new Point(340, 250), new Point(385, 100), new Point(385, 150), new Point(385, 300), new Point(400, 250), new Point(385, 0)};
 
 	// 5 points for hits, 5 points for outs, 1 for home run
-	private Point[] rightField = new Point[] {new Point(520, 150), new Point(570, 325), new Point(600, 200), new Point(520, 350), new Point(520, 250), new Point(570, 250), new Point(650, 125)};
+	private Point[] rightField = new Point[] {new Point(520, 150), new Point(570, 325), new Point(600, 200), new Point(520, 350), new Point(520, 250), new Point(570, 250), new Point(660, 115)};
 
 
 	private Image field;
@@ -232,17 +232,22 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 			int hit = r.nextInt(7);
 			
 			if (location == 1) {
-				Hit newHit = new Hit(new Point(433, 640), panel, leftField[hit]);
+				Hit newHit = new Hit(new Point(385, 600), panel, leftField[hit]);
 
 				list.add(newHit);
 				newHit.start();
 				panel.repaint();
 
-				while(!newHit.done()) {
-				}
+				// while(!newHit.done()) {
+				// }
 				if (hit < 3) {
 					displayText = "hit!";
+				} else if (hit < 6) {
+					displayText = "Out!";
+				} else {
+					displayText = "Homerun!";
 				}
+				list.get(0).done = true;
 				// if (hit == 4) {
 				// 	Hit newHit = new Hit(e.getPoint(), panel, leftField[10]);
 				// } else if (hit < 4) {
@@ -254,14 +259,45 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 
 			} else if (location == 2) {
 				System.out.println("2");
+				Hit newHit = new Hit(new Point(385, 620), panel, centerField[hit]);
 
+				list.add(newHit);
+				newHit.start();
+				panel.repaint();
+
+				// while(!newHit.done()) {
+				// }
+				if (hit < 3) {
+					displayText = "hit!";
+				} else if (hit < 6) {
+					displayText = "Out!";
+				} else {
+					displayText = "Homerun!";
+				}
+				list.get(0).done = true;
 			} else if (location == 3) {
-				System.out.println("3");
+				Hit newHit = new Hit(new Point(385, 660), panel, rightField[hit]);
 
+				list.add(newHit);
+				newHit.start();
+				panel.repaint();
+
+				// while(!newHit.done()) {
+				// }
+				if (hit < 3) {
+					displayText = "hit!";
+				} else if (hit < 6) {
+					displayText = "Out!";
+				} else {
+					displayText = "Homerun!";
+				}
+				System.out.println("3");
+				list.get(0).done = true;
 			}
 
 			else {
 				System.out.print("missed");
+				list.get(0).done = true;
 
 			}
 			clickCount = 0;
