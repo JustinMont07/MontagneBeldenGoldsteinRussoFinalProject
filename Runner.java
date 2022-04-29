@@ -53,6 +53,26 @@ public class Runner extends AnimatedGraphicsObject {
         this.container = container;
         this.curBase = curBase;
 
+        if (curBase == 1) {
+            upperLeft = firstBase;
+            endPoint = secondBase;
+        } else if (curBase == 2) {
+            upperLeft = secondBase;
+            endPoint = thirdBase;
+        } else if (curBase == 3) {
+            upperLeft = thirdBase;
+            endPoint = homePlate;
+        } else if (curBase == 0) {
+            upperLeft = homePlate;
+            endPoint = firstBase;
+        }
+
+        int xMove = endPoint.x - upperLeft.x;
+        int yMove = endPoint.y - upperLeft.y;
+
+        ySpeed = -1;
+        xSpeed = 1;
+
     }
 
     /**
@@ -65,8 +85,8 @@ public class Runner extends AnimatedGraphicsObject {
     }
 
     public boolean near(Point s, Point e) {
-        if (s.x > e.x - 10 && s.x < e.x + 10) {
-            if (s.y > e.y - 10 && s.y < e.y + 10)
+        if (s.x > e.x - 15 && s.x < e.x + 15) {
+            if (s.y > e.y - 15 && s.y < e.y + 15)
                 return true;
         }
         return false;
@@ -84,45 +104,24 @@ public class Runner extends AnimatedGraphicsObject {
 
         // this Ball's life as a thread will continue as long as this
         // ball is still located on the visible part of the screen
-        while (curBase != 4 && !done) {
+        while (!near(upperLeft, endPoint)) {
 
             try {
                 sleep(DELAY_TIME);
             } catch (InterruptedException e) {
             }
 
-            if (curBase == 1) {
-                upperLeft = firstBase;
-                endPoint = secondBase;
-            } else if (curBase == 2) {
-                upperLeft = secondBase;
-                endPoint = thirdBase;
-            } else if (curBase == 3) {
-                upperLeft = thirdBase;
-                endPoint = homePlate;
-            }
-            else if (curBase == 0) {
-                upperLeft = homePlate;
-                endPoint = firstBase;
-            }
-
-            int xMove = endPoint.x - upperLeft.x;
-            int yMove = endPoint.y - upperLeft.y;
-
-            ySpeed = yMove / 50;
-            xSpeed = xMove / 50;
-
             // every 30 ms or so, we move the coordinates of the ball down
             // by a pixel
             // if (!near(upperLeft, endPoint)) {
-                 upperLeft.translate(xSpeed, ySpeed);
-            //  } else {
-            //     ySpeed = 0;
-            //     xSpeed = 0;
-            //     curBase++;
-            //     numBases--;
+            upperLeft.translate(xSpeed, ySpeed);
+            // } else {
+            // ySpeed = 0;
+            // xSpeed = 0;
+            // curBase++;
+            // numBases--;
             // }
-            if(numBases == 0) {
+            if (numBases == 0) {
                 done = true;
             }
             // if we want to see the ball move to its new position, we
