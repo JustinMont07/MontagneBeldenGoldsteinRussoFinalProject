@@ -7,6 +7,7 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
+import java.awt.geom.Point2D;
 
 /**
  * A program to create BaseballGames wherever you press and hold
@@ -56,13 +57,17 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	private int team;
 	private int curInning;
 
+	private int numBases;
+
 	private JLabel labels[][] = new JLabel[3][6];
+
+	private Object lock = new Object();
 
 	// 5 points for hits, 5 points for outs, 1 for home run
 	private Point[] leftField = new Point[] { new Point(175, 200), new Point(250, 150), new Point(200, 325),
 			new Point(250, 350), new Point(200, 250), new Point(250, 250), new Point(125, 115) };
 
-	// 5 points for hits, 5 points for outs, 1 for home run
+	// 5 Points for hits, 5 points for outs, 1 for home run
 	private Point[] centerField = new Point[] { new Point(450, 250), new Point(340, 250), new Point(385, 100),
 			new Point(385, 150), new Point(385, 300), new Point(400, 250), new Point(385, 0) };
 
@@ -73,6 +78,8 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	private Image field;
 
 	private int clickCount;
+
+	private boolean draw;
 
 	// Start BaseballGame object which will draw the BaseballGame as it grows and
 	// allow us to get the final size of it
@@ -90,6 +97,12 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+		for (int j = 0; j < 3; j++) {
+			runnerCheck[j] = false;
+		}
+		numBases = 0;
+		draw = false;
+		team = 1;
 	}
 
 	/**
@@ -144,15 +157,24 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 
 				// redraw each BaseballGame's contents, and along the
 				// way, remove the ones that are popped
+				synchronized (lock) {
+					int i = 0;
+					while (i < list.size()) {
+						AnimatedGraphicsObject b = list.get(i);
+						if (b.done()) {
+							list.remove(i);
+						} else {
+							b.paint(g);
+							i++;
+						}
+					}
+				}
+				if (list.size() == 0) {
+					draw = true;
 
-				int i = 0;
-				while (i < list.size()) {
-					AnimatedGraphicsObject b = list.get(i);
-					if (b.done()) {
-						list.remove(i);
-					} else {
-						b.paint(g);
-						i++;
+					if (numBases > 0) {
+						numBases--;
+						moveRunner(1);
 					}
 				}
 
@@ -162,14 +184,16 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 					g.setColor(Color.red);
 				}
 
-				if (runnerCheck[0]) {
-					g.fillOval(firstBase.x, firstBase.y, 20, 20);
-				}
-				if (runnerCheck[1]) {
-					g.fillOval(secondBase.x, secondBase.y, 20, 20);
-				}
-				if (runnerCheck[2]) {
-					g.fillOval(thirdBase.x, thirdBase.y, 20, 20);
+				if (draw) {
+					if (runnerCheck[0]) {
+						g.fillOval(firstBase.x, firstBase.y, 20, 20);
+					}
+					if (runnerCheck[1]) {
+						g.fillOval(secondBase.x, secondBase.y, 20, 20);
+					}
+					if (runnerCheck[2]) {
+						g.fillOval(thirdBase.x, thirdBase.y, 20, 20);
+					}
 				}
 
 				// Checks if list is empty and that the user isn't currently making a
@@ -269,12 +293,22 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 				if (hit < 3) {
 					displayText = "hit!";
 					moveRunner(1);
+					numBases = 0;
+					Runner newRunner = new Runner(1, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
 
 				} else if (hit < 6) {
 					displayText = "Out!";
 				} else {
 					displayText = "Homerun!";
 					moveRunner(4);
+					numBases = 3;
+					Runner newRunner = new Runner(1, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
 				}
 				list.get(0).done = true;
 				// if (hit == 4) {
@@ -284,11 +318,11 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 				// } else {
 				// Hit newHit = new Hit(e.getPoint(), panel, leftField[hit]);
 				// }
-				System.out.println("1");
+			
 
 			} else if (location == 2) {
 
-				System.out.println("2");
+
 				Hit newHit = new Hit(new Point(385, 620), panel, centerField[hit]);
 
 				list.add(newHit);
@@ -300,11 +334,21 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 				if (hit < 3) {
 					displayText = "hit!";
 					moveRunner(1);
+					numBases = 0;
+					Runner newRunner = new Runner(1, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
 				} else if (hit < 6) {
 					displayText = "Out!";
 				} else {
 					displayText = "Homerun!";
 					moveRunner(4);
+					numBases = 3;
+					Runner newRunner = new Runner(1, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
 				}
 				list.get(0).done = true;
 			} else if (location == 3) {
@@ -319,18 +363,29 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 				if (hit < 3) {
 					displayText = "hit!";
 					moveRunner(1);
+					numBases = 0;
+					Runner newRunner = new Runner(1, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
+					
 				} else if (hit < 6) {
 					displayText = "Out!";
 				} else {
 					displayText = "Homerun!";
 					moveRunner(4);
+					numBases = 3;
+					Runner newRunner = new Runner(1, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
 				}
-				System.out.println("3");
+				
 				list.get(0).done = true;
 			}
 
 			else {
-				System.out.print("missed");
+				
 				list.get(0).done = true;
 
 			}
@@ -340,29 +395,35 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	}
 
 	public void moveRunner(int numBases) {
-		Runner newRunner = new Runner(1, 0, panel);
-		list.add(newRunner);
-		newRunner.start();
-		Runner curRunner;
+		draw = false;
+		boolean temp[] = new boolean[3];
 		for (int i = 0; i < runnerCheck.length; i++) {
 			if (runnerCheck[i]) {
 				runnerCheck[i] = false;
-				curRunner = new Runner(1, i + 1, panel);
+				temp[i] = false;
+				Runner curRunner = new Runner(1, i + 1, panel);
 				list.add(curRunner);
 				curRunner.start();
 				if (i == 2) {
 					if (team == 1) {
 						team1Score[curInning]++;
+						labels[1][curInning + 1].setText("" + team1Score[curInning]);
 					} else {
 						team2Score[curInning]++;
 					}
 				}
 				if (i != 2) {
-					runnerCheck[i + 1] = true;
+					temp[i + 1] = true;
 				}
 			}
 		}
-		runnerCheck[0] = true;
+		for (int i = 0; i < runnerCheck.length; i++) {
+			if (temp[i]) {
+				runnerCheck[i] = true;
+				temp[i] = false;
+			}
+		}
+
 		panel.repaint();
 	}
 

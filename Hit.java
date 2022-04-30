@@ -1,5 +1,6 @@
 import java.awt.*;
 import javax.swing.*;
+import java.awt.geom.Point2D;
 
 /**
  * The FallingBall class is responsible for managing the life of
@@ -19,9 +20,9 @@ import javax.swing.*;
     public static final int DELAY_TIME = 33;
 
     // pixels to move each frame
-    public int ySpeed;
+    public double ySpeed;
 
-    public int xSpeed;
+    public double xSpeed;
 
     // latest location of the ball
     private Point upperLeft;
@@ -29,8 +30,7 @@ import javax.swing.*;
     private Point endPoint;
 
 
-    // how far to fall?
-    private int bottom;
+    
 
 
     private static Image baseballPic;
@@ -58,11 +58,10 @@ import javax.swing.*;
         super(container);
 
         this.upperLeft = upperLeft;
-        this.bottom = container.getHeight();
         this.container = container;
         this.endPoint= endPoint;
-        int xMove = endPoint.x - upperLeft.x;
-        int yMove = endPoint.y - upperLeft.y;
+        double xMove = endPoint.x - upperLeft.x;
+        double yMove = endPoint.y - upperLeft.y;
 
         ySpeed = yMove / 50;
         xSpeed = xMove / 50;
@@ -78,7 +77,8 @@ import javax.swing.*;
 
        // g.fillOval(upperLeft.x, upperLeft.y, SIZE, SIZE);
 
-       g.drawImage(baseballPic, upperLeft.x, upperLeft.y, null);
+       g.drawImage(baseballPic, (int)upperLeft.x, (int)upperLeft.y, null);
+       g.fillOval((int)endPoint.x, (int)endPoint.y, SIZE, SIZE);
 
 
     }
@@ -105,7 +105,7 @@ import javax.swing.*;
 
             // every 30 ms or so, we move the coordinates of the ball down
             // by a pixel
-            upperLeft.translate(xSpeed, ySpeed);
+            upperLeft.translate((int)xSpeed, (int)ySpeed);
 
             // if we want to see the ball move to its new position, we
             // need to schedule a paint event on this container
@@ -120,6 +120,7 @@ import javax.swing.*;
             if(s.y > e.y -50 && s.y < e.y + 50)
                 return true;
         }
+        
         return false;
     }
 

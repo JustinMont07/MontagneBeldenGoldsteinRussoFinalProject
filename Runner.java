@@ -56,22 +56,30 @@ public class Runner extends AnimatedGraphicsObject {
         if (curBase == 1) {
             upperLeft = firstBase;
             endPoint = secondBase;
+            ySpeed = -1;
+            xSpeed = -1;
+            System.out.println("hi");
         } else if (curBase == 2) {
             upperLeft = secondBase;
             endPoint = thirdBase;
+            ySpeed = 1;
+            xSpeed = -1;
         } else if (curBase == 3) {
             upperLeft = thirdBase;
             endPoint = homePlate;
+            ySpeed = 1;
+            xSpeed = 1;
         } else if (curBase == 0) {
             upperLeft = homePlate;
             endPoint = firstBase;
+            ySpeed = -1;
+            xSpeed = 1;
         }
 
         int xMove = endPoint.x - upperLeft.x;
         int yMove = endPoint.y - upperLeft.y;
 
-        ySpeed = -1;
-        xSpeed = 1;
+
 
     }
 
