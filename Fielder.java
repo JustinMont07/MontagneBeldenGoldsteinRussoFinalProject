@@ -7,11 +7,11 @@ import java.awt.geom.Point2D;
  * one ball that falls down the screen, stopping when it reaches the
  * bottom of the window.
  * 
- * @author 
+ * @author
  * @version Spring 2022
  */
- class Fielder extends AnimatedGraphicsObject{
-      // delay time between frames of animation (ms)
+class Fielder extends AnimatedGraphicsObject {
+    // delay time between frames of animation (ms)
 
     // we don't want to move too quickly, so a delay here of about 33
     // ms will make the loop in run go around about 30 times per
@@ -29,13 +29,9 @@ import java.awt.geom.Point2D;
 
     private Point2D.Double endPoint;
 
-
     private static final int SIZE = 20;
 
-
-
-
-
+    private Color color;
 
     // who do we live in so we can repaint?
     private JComponent container;
@@ -49,12 +45,13 @@ import java.awt.geom.Point2D;
      *                       drawn to allow it to call that component's repaint
      *                       method
      */
-    public Fielder(Point2D.Double upperLeft, JComponent container, Point2D.Double endPoint) {
+    public Fielder(Point2D.Double upperLeft, JComponent container, Point2D.Double endPoint, Color color) {
         super(container);
 
+        this.color = color;
         this.upperLeft = upperLeft;
         this.container = container;
-        this.endPoint= endPoint;
+        this.endPoint = endPoint;
         double xMove = endPoint.x - upperLeft.x;
         double yMove = endPoint.y - upperLeft.y;
 
@@ -70,10 +67,9 @@ import java.awt.geom.Point2D;
      */
     public void paint(Graphics g) {
 
-       // g.fillOval(upperLeft.x, upperLeft.y, SIZE, SIZE);
-
-       g.fillOval((int)upperLeft.x, (int)upperLeft.y, SIZE, SIZE);
-
+        // g.fillOval(upperLeft.x, upperLeft.y, SIZE, SIZE);
+        g.setColor(color);
+        g.fillOval((int) upperLeft.x, (int) upperLeft.y, SIZE, SIZE);
 
     }
 
@@ -90,7 +86,6 @@ import java.awt.geom.Point2D;
         // this Ball's life as a thread will continue as long as this
         // ball is still located on the visible part of the screen
         while (!near(upperLeft, endPoint)) {
-        
 
             try {
                 sleep(DELAY_TIME);
@@ -109,12 +104,12 @@ import java.awt.geom.Point2D;
         done = true;
     }
 
-    public boolean near(Point2D.Double s, Point2D.Double e){
-        if(s.x > e.x -5 && s.x < e.x + 5){
-            if(s.y > e.y -5 && s.y < e.y + 5)
+    public boolean near(Point2D.Double s, Point2D.Double e) {
+        if (s.x > e.x - 5 && s.x < e.x + 5) {
+            if (s.y > e.y - 5 && s.y < e.y + 5)
                 return true;
         }
-        
+
         return false;
     }
 }

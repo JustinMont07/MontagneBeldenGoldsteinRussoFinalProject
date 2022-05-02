@@ -19,7 +19,7 @@ public class Runner extends AnimatedGraphicsObject {
     // animation looks smooth to the human eye and brain
     public static final int DELAY_TIME = 33;
 
-    protected int numBases;
+    private Color color;
 
     private int curBase;
 
@@ -47,10 +47,10 @@ public class Runner extends AnimatedGraphicsObject {
      *                  drawn to allow it to call that component's repaint
      *                  method
      */
-    public Runner(int color, int curBase, JComponent container) {
+    public Runner(Color color, int curBase, JComponent container) {
         super(container);
 
-        
+        this.color = color;
         this.container = container;
         this.curBase = curBase;
 
@@ -88,6 +88,7 @@ public class Runner extends AnimatedGraphicsObject {
      * @param g the Graphics object on which the ball should be drawn
      */
     public void paint(Graphics g) {
+        g.setColor(color);
         g.fillOval((int)upperLeft.x, (int)upperLeft.y, 20, 20);
     }
     /**
