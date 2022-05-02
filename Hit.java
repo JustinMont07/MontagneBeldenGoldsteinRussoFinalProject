@@ -25,9 +25,9 @@ import java.awt.geom.Point2D;
     public double xSpeed;
 
     // latest location of the ball
-    private Point upperLeft;
+    private Point2D.Double upperLeft;
 
-    private Point endPoint;
+    private Point2D.Double endPoint;
 
 
     
@@ -54,7 +54,7 @@ import java.awt.geom.Point2D;
      *                       drawn to allow it to call that component's repaint
      *                       method
      */
-    public Hit(Point upperLeft, JComponent container, Point endPoint) {
+    public Hit(Point2D.Double upperLeft, JComponent container, Point2D.Double endPoint) {
         super(container);
 
         this.upperLeft = upperLeft;
@@ -105,7 +105,7 @@ import java.awt.geom.Point2D;
 
             // every 30 ms or so, we move the coordinates of the ball down
             // by a pixel
-            upperLeft.translate((int)xSpeed, (int)ySpeed);
+            upperLeft.setLocation(upperLeft.x + xSpeed, upperLeft.y + ySpeed);
 
             // if we want to see the ball move to its new position, we
             // need to schedule a paint event on this container
@@ -115,9 +115,9 @@ import java.awt.geom.Point2D;
         done = true;
     }
 
-    public boolean near(Point s, Point e){
-        if(s.x > e.x -50 && s.x < e.x + 50){
-            if(s.y > e.y -50 && s.y < e.y + 50)
+    public boolean near(Point2D.Double s, Point2D.Double e){
+        if(s.x > e.x -5 && s.x < e.x + 5){
+            if(s.y > e.y -5 && s.y < e.y + 5)
                 return true;
         }
         
@@ -142,11 +142,11 @@ import java.awt.geom.Point2D;
      * Set the Image to be used by all Ball objects, to be
      * called by the main method before the GUI gets set up
      */
-    public Point getLocation() {
+    public Point2D.Double getLocation() {
 
        
 
-        return new Point(upperLeft.x + 15, upperLeft.y + 15);
+        return new Point2D.Double(upperLeft.x + 15, upperLeft.y + 15);
     }
 
 

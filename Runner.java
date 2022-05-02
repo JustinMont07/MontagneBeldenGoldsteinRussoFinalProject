@@ -1,5 +1,6 @@
 import java.awt.*;
 import javax.swing.*;
+import java.awt.geom.Point2D;
 
 /**
  * The FallingBall class is responsible for managing the life of
@@ -22,17 +23,17 @@ public class Runner extends AnimatedGraphicsObject {
 
     private int curBase;
 
-    private Point upperLeft;
+    private Point2D.Double upperLeft;
 
-    private Point endPoint;
+    private Point2D.Double endPoint;
 
-    private int xSpeed;
-    private int ySpeed;
+    private double xSpeed;
+    private double ySpeed;
 
-    private Point firstBase = new Point(480, 475);
-    private Point secondBase = new Point(385, 365);
-    private Point thirdBase = new Point(290, 475);
-    private Point homePlate = new Point(385, 585);
+    private Point2D.Double firstBase = new Point2D.Double(480, 475);
+    private Point2D.Double secondBase = new Point2D.Double(385, 365);
+    private Point2D.Double thirdBase = new Point2D.Double(290, 475);
+    private Point2D.Double homePlate = new Point2D.Double(385, 585);
 
     // who do we live in so we can repaint?
     private JComponent container;
@@ -46,63 +47,65 @@ public class Runner extends AnimatedGraphicsObject {
      *                  drawn to allow it to call that component's repaint
      *                  method
      */
-    public Runner(int numBases, int curBase, JComponent container) {
+    public Runner(int color, int curBase, JComponent container) {
         super(container);
 
-        this.numBases = numBases;
+        
         this.container = container;
         this.curBase = curBase;
 
         if (curBase == 1) {
             upperLeft = firstBase;
             endPoint = secondBase;
-            ySpeed = -1;
-            xSpeed = -1;
-            System.out.println("hi");
+            
         } else if (curBase == 2) {
             upperLeft = secondBase;
             endPoint = thirdBase;
-            ySpeed = 1;
-            xSpeed = -1;
+            
         } else if (curBase == 3) {
             upperLeft = thirdBase;
             endPoint = homePlate;
-            ySpeed = 1;
-            xSpeed = 1;
+            
         } else if (curBase == 0) {
             upperLeft = homePlate;
             endPoint = firstBase;
-            ySpeed = -1;
-            xSpeed = 1;
+            
         }
 
-        int xMove = endPoint.x - upperLeft.x;
-        int yMove = endPoint.y - upperLeft.y;
+        double xMove = endPoint.x - upperLeft.x;
+        double yMove = endPoint.y - upperLeft.y;
+
+        ySpeed = yMove / 50;
+        xSpeed = xMove / 50;
 
 
 
     }
 
     /**
-     * Draw the ball at its current location.
+     * Draw the runner at its current location.
      *
      * @param g the Graphics object on which the ball should be drawn
      */
     public void paint(Graphics g) {
-        g.fillOval(upperLeft.x, upperLeft.y, 20, 20);
+        g.fillOval((int)upperLeft.x, (int)upperLeft.y, 20, 20);
     }
-
-    public boolean near(Point s, Point e) {
-        if (s.x > e.x - 15 && s.x < e.x + 15) {
-            if (s.y > e.y - 15 && s.y < e.y + 15)
+    /**
+     * Checks if the runner is within 5 pixels of the base
+     * @param s
+     * @param e
+     * @return
+     */
+    public boolean near(Point2D.Double s, Point2D.Double e) {
+        if (s.x > e.x - 5 && s.x < e.x + 5) {
+            if (s.y > e.y - 5 && s.y < e.y + 5)
                 return true;
         }
         return false;
     }
 
     /**
-     * This object's run method, which manages the life of the ball as it
-     * moves down the screen.
+     * This object's run method, which manages the life of the runner
      */
     @Override
     public void run() {
@@ -110,8 +113,8 @@ public class Runner extends AnimatedGraphicsObject {
         // the run method is what runs in this object's thread for the
         // time it is "alive"
 
-        // this Ball's life as a thread will continue as long as this
-        // ball is still located on the visible part of the screen
+        // this runners life as a thread will continue as long
+        //as the runner isnt near the base (within 5 pixels)
         while (!near(upperLeft, endPoint)) {
 
             try {
@@ -119,19 +122,10 @@ public class Runner extends AnimatedGraphicsObject {
             } catch (InterruptedException e) {
             }
 
-            // every 30 ms or so, we move the coordinates of the ball down
-            // by a pixel
-            // if (!near(upperLeft, endPoint)) {
-            upperLeft.translate(xSpeed, ySpeed);
-            // } else {
-            // ySpeed = 0;
-            // xSpeed = 0;
-            // curBase++;
-            // numBases--;
-            // }
-            if (numBases == 0) {
-                done = true;
-            }
+            // every 30 ms or so, we move the coordinates of the runner toward the next base
+            
+            upperLeft.setLocation(upperLeft.x + xSpeed, upperLeft.y + ySpeed);
+            
             // if we want to see the ball move to its new position, we
             // need to schedule a paint event on this container
             container.repaint();
