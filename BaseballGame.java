@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.geom.Point2D;
+import java.awt.event.ItemEvent;
 
 /**
  * A program to create BaseballGames wherever you press and hold
@@ -16,7 +17,7 @@ import java.awt.geom.Point2D;
  * @version Spring 2022
  */
 
-public class BaseballGame extends MouseAdapter implements Runnable {
+public class BaseballGame extends MouseAdapter implements Runnable, ActionListener {
 
 	// The message to be displayed if no BaseballGames on screen
 	private String displayText = "";
@@ -98,6 +99,29 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 	private Color fielderColor;
 	private Color runnerColor;
 
+	private JPanel startMenu;
+	private JComboBox colors;
+	private JComboBox colors2;
+	private JTextField team1Name;
+	private JTextField team2Name;
+	private JPanel startButton;
+	private JButton start;
+	private JPanel startPanel;
+
+	private CardLayout layout;
+
+	private JFrame frame;
+
+	private JFrame startFrame;
+
+	private boolean gameStarted;
+
+	private String teamName1;
+	private String teamName2;
+
+	private Color team1Color;
+	private Color team2Color;
+
 	// Start BaseballGame object which will draw the BaseballGame as it grows and
 	// allow us to get the final size of it
 	// private Baseball b;
@@ -123,6 +147,9 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 		team = 1;
 		curInning = 0;
 		teamChange = false;
+		gameStarted = false;
+		layout = new CardLayout();
+
 	}
 
 	/**
@@ -137,12 +164,48 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 
 		// create a JFrame in which we will build our very
 		// tiny GUI, and give the window a name
-		JFrame frame = new JFrame("BaseballGame");
+		frame = new JFrame("BaseballGame");
 		frame.setPreferredSize(new Dimension(800, 800));
 
+		startFrame = new JFrame("Baseball Options");
+		startFrame.setPreferredSize(new Dimension(600, 600));
+		startFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// tell the JFrame that when someone closes the
 		// window, the application should terminate
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		team1Name = new JTextField("Enter Team 1 Name");
+		team2Name = new JTextField("Enter Team 2 Name");
+		String[] colorOptions = new String[] { "BLUE", "RED", "MAGENTA", "PINK", "GREEN", "ORANGE", "YELLOW" };
+		colors = new JComboBox(colorOptions);
+		colors2 = new JComboBox(colorOptions);
+
+		startPanel = new JPanel(new GridLayout(2, 1));
+
+		startMenu = new JPanel(new GridLayout(4, 2));
+		startMenu.add(new JLabel("Team 1 Options"));
+		startMenu.add(new JLabel("Team 2 Options"));
+		startMenu.add(team1Name);
+		startMenu.add(team2Name);
+		startMenu.add(new JLabel("Select Color")).setPreferredSize(new Dimension(400, 20));
+		startMenu.add(new JLabel("Select Color")).setPreferredSize(new Dimension(400, 20));
+
+		startMenu.add(colors);
+		startMenu.add(colors2);
+		startFrame.add(startPanel);
+		startButton = new JPanel();
+		start = new JButton("Play Ball!");
+		startPanel.add(startMenu);
+		startPanel.add(startButton);
+
+		startButton.add(start);
+
+		start.addActionListener(this);
+		team1Name.addActionListener(this);
+		team2Name.addActionListener(this);
+		colors2.addActionListener(this);
+		colors.addActionListener(this);
+		colors.setSelectedItem("BLUE");
+		colors.setSelectedItem("RED");
 
 		// JPanel with a paintComponent method
 		panel = new JPanel(new BorderLayout()) {
@@ -206,11 +269,11 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 				}
 
 				if (team == 1) {
-					runnerColor = Color.blue;
-					fielderColor = Color.red;
+					runnerColor = team1Color;
+					fielderColor = team2Color;
 				} else {
-					runnerColor = Color.red;
-					fielderColor = Color.blue;
+					runnerColor = team2Color;
+					fielderColor = team1Color;
 				}
 				g.setColor(fielderColor);
 				if (drawFielders) {
@@ -271,16 +334,18 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 				g.drawString("Outs: " + outs, 0, 75);
 
 				for (int i = 0; i < 6; i++) {
-					labels[0][i].setBorder(BorderFactory.createLineBorder(Color.black));
+					labels[0][i].setBackground(Color.white);
 					labels[1][i].setBorder(BorderFactory.createLineBorder(Color.black));
 					labels[2][i].setBorder(BorderFactory.createLineBorder(Color.black));
 				}
-				labels[0][curInning + 1].setBorder(BorderFactory.createLineBorder(Color.green, 2));
+				// labels[0][curInning +
+				// 1].setBorder(BorderFactory.createLineBorder(Color.green, 2));
+				labels[0][curInning + 1].setBackground(Color.green);
 
 				if (team == 1) {
-					labels[1][curInning + 1].setBorder(BorderFactory.createLineBorder(Color.blue, 2));
+					labels[1][curInning + 1].setBorder(BorderFactory.createLineBorder(team1Color, 2));
 				} else {
-					labels[2][curInning + 1].setBorder(BorderFactory.createLineBorder(Color.red, 2));
+					labels[2][curInning + 1].setBorder(BorderFactory.createLineBorder(team2Color, 2));
 				}
 
 			}
@@ -300,13 +365,14 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 			labels[2][i].setText("" + 0);
 		}
 		labels[0][0].setText("Inning");
-		labels[1][0].setText("Team1");
-		labels[2][0].setText("Team2");
+		labels[1][0].setText("" + teamName1);
+		labels[2][0].setText("" + teamName2);
 
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 6; j++) {
 				scoreBoard.add(labels[i][j]);
 				labels[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
+				labels[i][j].setOpaque(true);
 
 			}
 		}
@@ -320,8 +386,10 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 
 		// display the window we've created
 		frame.pack();
-		frame.setVisible(true);
+		// frame.setVisible(false);
 		frame.setResizable(false);
+		startFrame.pack();
+		startFrame.setVisible(true);
 	}
 
 	/**
@@ -379,7 +447,6 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 							fielderColor);
 					list.add(newFielder);
 					newFielder.start();
-					
 
 				} else if (hit < 6) {
 					incrementOut();
@@ -401,7 +468,7 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 							fielderColor);
 					list.add(newFielder);
 					newFielder.start();
-					
+
 				}
 				list.get(0).done = true;
 
@@ -589,6 +656,104 @@ public class BaseballGame extends MouseAdapter implements Runnable {
 
 		// launch the main thread that will manage the GUI
 		javax.swing.SwingUtilities.invokeLater(new BaseballGame());
+
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource().equals(start)) {
+
+			startFrame.setVisible(false);
+			frame.requestFocus();
+			frame.setVisible(true);
+
+		}
+		String c1 = (String) colors.getSelectedItem();
+		String c2 = (String) colors2.getSelectedItem();
+
+		switch (c1) {
+			case "BLUE":
+				team1Color = Color.blue;
+				break;
+			case "RED":
+				team1Color = Color.red;
+				break;
+			case "MAGENTA":
+				team1Color = Color.magenta;
+				break;
+			case "PINK":
+				team1Color = Color.pink;
+				break;
+			case "YELLOW":
+				team1Color = Color.yellow;
+				break;
+			case "ORANGE":
+				team1Color = Color.orange;
+				break;
+			case "GREEN":
+				team1Color = Color.green;
+				break;
+
+		}
+		switch (c2) {
+			case "BLUE":
+				team2Color = Color.blue;
+				break;
+			case "RED":
+				team1Color = Color.red;
+				break;
+			case "MAGENTA":
+				team2Color = Color.magenta;
+				break;
+			case "PINK":
+				team2Color = Color.pink;
+				break;
+			case "YELLOW":
+				team2Color = Color.yellow;
+				break;
+			case "ORANGE":
+				team2Color = Color.orange;
+				break;
+			case "GREEN":
+				team2Color = Color.green;
+				break;
+
+		}
+		if(c1 == "BLUE"){
+			team1Color = Color.blue;
+		} else if(c1 == "RED"){
+			team1Color = Color.red;
+		}else if(c1 == "MAGENTA"){
+			team1Color = Color.magenta;
+		}else if(c1 == "PINK"){
+			team1Color = Color.pink;
+		}else if(c1 == "ORANGE"){
+			team1Color = Color.orange;
+		}else if(c1 == "YELLOW"){
+			team1Color = Color.yellow;
+		}else if(c1 == "GREEN"){
+			team1Color = Color.green;
+		}
+		if(c2 == "BLUE"){
+			team2Color = Color.red;
+		} else if(c2 == "RED"){
+			team2Color = Color.red;
+		}else if(c2 == "MAGENTA"){
+			team2Color = Color.magenta;
+		}else if(c2 == "PINK"){
+			team2Color = Color.pink;
+		}else if(c2 == "ORANGE"){
+			team2Color = Color.orange;
+		}else if(c2 == "YELLOW"){
+			team2Color = Color.yellow;
+		}else if(c2 == "GREEN"){
+			team2Color = Color.green;
+		}
+		teamName1 = team1Name.getText();
+		labels[1][0].setText(teamName1);
+
+		teamName2 = team2Name.getText();
+		labels[2][0].setText(teamName2);
 
 	}
 }

@@ -49,7 +49,7 @@ class Fielder extends AnimatedGraphicsObject {
         super(container);
 
         this.color = color;
-        this.upperLeft = upperLeft;
+        this.upperLeft = new Point2D.Double(upperLeft.x, upperLeft.y);
         this.container = container;
         this.endPoint = endPoint;
         double xMove = endPoint.x - upperLeft.x;
