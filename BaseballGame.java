@@ -65,15 +65,21 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	private Object lock = new Object();
 
+	
+	
+				//4 hits 
+				//2 singles , 2 doubles, 1 triple, 5 outs , 1 hr 
 	// 5 Point2D.Doubles for hits, 5 Point2D.Doubles for outs, 1 for home run
-	private Point2D.Double[] leftField = new Point2D.Double[] { new Point2D.Double(175, 200),
-			new Point2D.Double(250, 150), new Point2D.Double(200, 325),
-			new Point2D.Double(250, 350), new Point2D.Double(200, 250), new Point2D.Double(250, 250),
+	private Point2D.Double[] leftField = new Point2D.Double[] {
+			 new Point2D.Double(175, 200), new Point2D.Double(200, 325), 
+			 new Point2D.Double(270, 200),new Point2D.Double(150, 250),
+			 new Point2D.Double(250, 150),
+			new Point2D.Double(250, 350), new Point2D.Double(200, 250), new Point2D.Double(250, 250),new Point2D.Double(280, 300), new Point2D.Double(200, 300),
 			new Point2D.Double(125, 115) };
 
 	// 5 Point2D.Doubles for hits, 5 Point2D.Doubles for outs, 1 for home run
-	private Point2D.Double[] centerField = new Point2D.Double[] { new Point2D.Double(450, 250),
-			new Point2D.Double(340, 250), new Point2D.Double(385, 100),
+	private Point2D.Double[] centerField = new Point2D.Double[] {
+		 new Point2D.Double(450, 250), new Point2D.Double(340, 250), new Point2D.Double(385, 100),
 			new Point2D.Double(385, 150), new Point2D.Double(385, 300), new Point2D.Double(400, 250),
 			new Point2D.Double(385, 0) };
 
@@ -237,16 +243,19 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			@Override
 			public void paintComponent(Graphics g) {
 
+
+
 				// first, we should call the paintComponent method we are
 				// overriding in JPanel
 				super.paintComponent(g);
 				g.drawImage(field, 0, 0, null);
 
+
 				// border
 				g.setColor(Color.BLACK);
 				g.drawRect(369, 600, 60, 120);
 
-				// red - early -
+				// red - early - left 
 				g.setColor(new Color(230, 0, 0, 100));
 				g.fillRect(369, 600, 60, 40);
 
@@ -254,7 +263,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				g.setColor(new Color(0, 234, 0, 100));
 				g.fillRect(369, 640, 60, 40);
 
-				// blue - late -
+				// blue - late - right 
 				g.setColor(new Color(0, 0, 222, 100));
 				g.fillRect(369, 680, 60, 40);
 
@@ -456,7 +465,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			location = contains(((Ball) list.get(0)).getLocation());
 
 			drawFielders = true;
-			int hit = r.nextInt(7);
+			int hit = r.nextInt(11);
 
 			if (location == 1) {
 				Hit newHit = new Hit(new Point2D.Double(385, 600), panel, leftField[hit]);
@@ -465,8 +474,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				newHit.start();
 				panel.repaint();
 
-				if (hit < 3) {
-					displayText = "hit!";
+				if (hit < 2) {
+					displayText = "Single!";
 					moveRunner(1);
 					numBases = 0;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
@@ -480,7 +489,27 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					list.add(newFielder);
 					newFielder.start();
 
-				} else if (hit < 6) {
+				}else if (hit < 4){
+					displayText = "Double!";
+					moveRunner(1);
+					numBases = 1;
+					Runner newRunner = new Runner(runnerColor, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
+
+
+				}
+				else if (hit == 4){
+					displayText = "Tripple!";
+					moveRunner(1);
+					numBases = 2;
+					Runner newRunner = new Runner(runnerColor, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
+				}
+				 else if (hit < 10) {
 					incrementOut();
 					displayText = "Out!";
 					Fielder newFielder = new Fielder(LEFT_FIELDER, panel, leftField[hit], fielderColor);
@@ -501,8 +530,11 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					list.add(newFielder);
 					newFielder.start();
 
+
 				}
 				list.get(0).done = true;
+				panel.repaint();
+
 
 			} else if (location == 2) {
 
