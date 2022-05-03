@@ -31,7 +31,7 @@ public class Runner extends AnimatedGraphicsObject {
     private double ySpeed;
 
     private Point2D.Double firstBase = new Point2D.Double(480, 475);
-    private Point2D.Double secondBase = new Point2D.Double(385, 365);
+    private Point2D.Double secondBase = new Point2D.Double(390, 370);
     private Point2D.Double thirdBase = new Point2D.Double(290, 475);
     private Point2D.Double homePlate = new Point2D.Double(385, 585);
 

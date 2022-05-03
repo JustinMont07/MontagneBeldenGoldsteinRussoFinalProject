@@ -148,8 +148,4 @@ import java.awt.geom.Point2D;
 
         return new Point2D.Double(upperLeft.x + 15, upperLeft.y + 15);
     }
-
-
-
-
 }

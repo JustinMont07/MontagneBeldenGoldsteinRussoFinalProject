@@ -8,7 +8,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.geom.Point2D;
-import java.awt.event.ItemEvent;
 
 /**
  * A program to create BaseballGames wherever you press and hold
@@ -17,7 +16,7 @@ import java.awt.event.ItemEvent;
  * @version Spring 2022
  */
 
-public class BaseballGame extends MouseAdapter implements Runnable, ActionListener {
+public class BaseballGame extends MouseAdapter implements Runnable, ActionListener, KeyListener {
 
 	// The message to be displayed if no BaseballGames on screen
 	private String displayText = "";
@@ -38,14 +37,14 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	private JPanel scoreBoard;
 
-	private int[] team1Score = new int[5];
+	private int[] team1Score = new int[6];
 
-	private int[] team2Score = new int[5];
+	private int[] team2Score = new int[6];
 
 	private boolean[] runnerCheck = new boolean[3];
 
 	private Point2D.Double firstBase = new Point2D.Double(480, 475);
-	private Point2D.Double secondBase = new Point2D.Double(385, 365);
+	private Point2D.Double secondBase = new Point2D.Double(390, 370);
 	private Point2D.Double thirdBase = new Point2D.Double(290, 475);
 	private Point2D.Double homePlate = new Point2D.Double(385, 585);
 
@@ -62,7 +61,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	private int numBases;
 
-	private JLabel labels[][] = new JLabel[3][6];
+	private JLabel labels[][] = new JLabel[3][7];
 
 	private Object lock = new Object();
 
@@ -114,7 +113,15 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	private JFrame startFrame;
 
-	private boolean gameStarted;
+	private JFrame optionFrame;
+
+	private JButton continueGame;
+
+	private JPanel optionPanel;
+
+	private JButton skipInning;
+
+	private JButton endGame;
 
 	private String teamName1;
 	private String teamName2;
@@ -127,7 +134,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 	// private Baseball b;
 
 	public BaseballGame() {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 7; i++) {
 			for (int j = 0; j < 3; j++) {
 				labels[j][i] = new JLabel();
 			}
@@ -147,7 +154,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		team = 1;
 		curInning = 0;
 		teamChange = false;
-		gameStarted = false;
 		layout = new CardLayout();
 
 	}
@@ -170,11 +176,15 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		startFrame = new JFrame("Baseball Options");
 		startFrame.setPreferredSize(new Dimension(600, 600));
 		startFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		optionFrame = new JFrame("Game Paused");
+		optionFrame.setPreferredSize(new Dimension(400, 400));
+		optionFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// tell the JFrame that when someone closes the
 		// window, the application should terminate
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		team1Name = new JTextField("Enter Team 1 Name");
-		team2Name = new JTextField("Enter Team 2 Name");
+		team1Name = new JTextField("Enter Away Team Name");
+		team2Name = new JTextField("Enter Home Team Name");
 		String[] colorOptions = new String[] { "BLUE", "RED", "MAGENTA", "PINK", "GREEN", "ORANGE", "YELLOW" };
 		colors = new JComboBox(colorOptions);
 		colors2 = new JComboBox(colorOptions);
@@ -182,8 +192,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		startPanel = new JPanel(new GridLayout(2, 1));
 
 		startMenu = new JPanel(new GridLayout(4, 2));
-		startMenu.add(new JLabel("Team 1 Options"));
-		startMenu.add(new JLabel("Team 2 Options"));
+		startMenu.add(new JLabel("Away Team Options"));
+		startMenu.add(new JLabel("Home Team Options"));
 		startMenu.add(team1Name);
 		startMenu.add(team2Name);
 		startMenu.add(new JLabel("Select Color")).setPreferredSize(new Dimension(400, 20));
@@ -206,6 +216,21 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		colors.addActionListener(this);
 		colors.setSelectedItem("BLUE");
 		colors.setSelectedItem("RED");
+
+		optionPanel = new JPanel(new GridLayout(4, 1));
+		continueGame = new JButton("Resume");
+		endGame = new JButton("End Game");
+		skipInning = new JButton("Advance Inning");
+		optionFrame.add(optionPanel);
+		JLabel pause = new JLabel("Game Paused");
+		pause.setHorizontalAlignment(JLabel.CENTER);
+		optionPanel.add(pause);
+		optionPanel.add(skipInning);
+		optionPanel.add(endGame);
+		optionPanel.add(continueGame);
+		skipInning.addActionListener(this);
+		endGame.addActionListener(this);
+		continueGame.addActionListener(this);
 
 		// JPanel with a paintComponent method
 		panel = new JPanel(new BorderLayout()) {
@@ -234,7 +259,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				g.fillRect(369, 680, 60, 40);
 
 				// redraw each BaseballGame's contents, and along the
-				// way, remove the ones that are popped
+				// way, remove the ones that are done
 
 				synchronized (lock) {
 					int i = 0;
@@ -248,10 +273,11 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						}
 					}
 				}
+				// checks if the list is empty, redraws the fielders and runner
 				if (list.size() == 0) {
 					draw = true;
 					drawFielders = false;
-
+					// checks if the hit required the runners to move more
 					if (numBases > 0) {
 						numBases--;
 						moveRunner(1);
@@ -333,24 +359,27 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				g.drawString("Outs: " + outs, 0, 75);
 
-				for (int i = 0; i < 6; i++) {
+				for (int i = 0; i < 7; i++) {
 					labels[0][i].setBackground(Color.white);
 					labels[1][i].setBorder(BorderFactory.createLineBorder(Color.black));
 					labels[2][i].setBorder(BorderFactory.createLineBorder(Color.black));
 				}
-				// labels[0][curInning +
-				// 1].setBorder(BorderFactory.createLineBorder(Color.green, 2));
+
 				labels[0][curInning + 1].setBackground(Color.green);
 
-				if (team == 1) {
-					labels[1][curInning + 1].setBorder(BorderFactory.createLineBorder(team1Color, 2));
+				if (!teamChange) {
+					if (team == 1) {
+						labels[1][curInning + 1].setBorder(BorderFactory.createLineBorder(team1Color, 2));
+					} else {
+						labels[2][curInning + 1].setBorder(BorderFactory.createLineBorder(team2Color, 2));
+					} 
 				} else {
-					labels[2][curInning + 1].setBorder(BorderFactory.createLineBorder(team2Color, 2));
+					labels[1][curInning + 1].setBorder(BorderFactory.createLineBorder(team1Color, 2));
 				}
 
 			}
 		};
-		scoreBoard = new JPanel(new GridLayout(3, 6));
+		scoreBoard = new JPanel(new GridLayout(3, 7));
 		scoreBoard.setOpaque(true);
 		frame.add(panel);
 		panel.add(scoreBoard, BorderLayout.NORTH);
@@ -358,10 +387,11 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		for (int i = 1; i < 6; i++) {
 			labels[0][i].setText("" + i);
 		}
-		for (int i = 1; i < 6; i++) {
+		labels[0][6].setText("Runs");
+		for (int i = 1; i < 7; i++) {
 			labels[1][i].setText("" + 0);
 		}
-		for (int i = 1; i < 6; i++) {
+		for (int i = 1; i < 7; i++) {
 			labels[2][i].setText("" + 0);
 		}
 		labels[0][0].setText("Inning");
@@ -369,10 +399,11 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		labels[2][0].setText("" + teamName2);
 
 		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 6; j++) {
+			for (int j = 0; j < 7; j++) {
 				scoreBoard.add(labels[i][j]);
 				labels[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
 				labels[i][j].setOpaque(true);
+				labels[i][j].setBackground(Color.white);
 
 			}
 		}
@@ -380,21 +411,24 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		scoreBoard.setBorder(BorderFactory.createLineBorder(Color.black));
 
 		panel.addMouseListener(this);
+		frame.addKeyListener(this);
 
 		// construct the list
 		list = new ArrayList<AnimatedGraphicsObject>();
 
 		// display the window we've created
 		frame.pack();
-		// frame.setVisible(false);
+
 		frame.setResizable(false);
 		startFrame.pack();
 		startFrame.setVisible(true);
+		optionFrame.pack();
+
 	}
 
 	/**
-	 * Mouse press event handler to create a new FallingBall with its top
-	 * centered at the press Point2D.Double.
+	 * First click pitches the ball and the second click simulates a hit if you
+	 * click while the ball is in the strike zone
 	 * 
 	 * @param e mouse event info
 	 */
@@ -415,7 +449,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			clickCount = 1;
 
 		} else if (list.size() > 0 && clickCount == 1) {
-			// have second hit
+			// mouse clicked for second time while ball is in screen
 
 			Random r = new Random();
 
@@ -431,8 +465,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				newHit.start();
 				panel.repaint();
 
-				// while(!newHit.done()) {
-				// }
 				if (hit < 3) {
 					displayText = "hit!";
 					moveRunner(1);
@@ -480,8 +512,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				newHit.start();
 				panel.repaint();
 
-				// while(!newHit.done()) {
-				// }
 				if (hit < 3) {
 					displayText = "hit!";
 					moveRunner(1);
@@ -525,8 +555,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				newHit.start();
 				panel.repaint();
 
-				// while(!newHit.done()) {
-				// }
 				if (hit < 3) {
 					displayText = "hit!";
 					moveRunner(1);
@@ -589,11 +617,20 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				curRunner.start();
 				if (i == 2) {
 					if (team == 1) {
-						team1Score[curInning]++;
+						if (curInning != 5)
+							team1Score[curInning]++;
+
+						team1Score[5]++;
 						labels[1][curInning + 1].setText("" + team1Score[curInning]);
+						labels[1][6].setText("" + team1Score[5]);
 					} else {
-						team2Score[curInning]++;
+						if (curInning != 5)
+							team2Score[curInning]++;
+
+						team2Score[5]++;
 						labels[2][curInning + 1].setText("" + team2Score[curInning]);
+						labels[2][6].setText("" + team2Score[5]);
+
 					}
 				}
 				if (i != 2) {
@@ -639,8 +676,23 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			if (team == 2) {
 				if (curInning < 4) {
 					curInning++;
+				} else {
+					if (team1Score[5] > team2Score[5])
+						displayText = teamName1 + "wins!";
+					else if (team2Score[5] > team1Score[5])
+						displayText = teamName2 + "wins!";
+					else {
+						displayText = "Game is tied! We're going to extras!";
+						curInning = 5;
+					}
 				}
 
+			}
+			else{
+				if(curInning == 4){
+					if (team2Score[5] > team1Score[5])
+						displayText = teamName2 + "wins!";
+				}
 			}
 			outs = 0;
 			for (int i = 0; i < runnerCheck.length; i++) {
@@ -667,93 +719,104 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			frame.requestFocus();
 			frame.setVisible(true);
 
-		}
-		String c1 = (String) colors.getSelectedItem();
-		String c2 = (String) colors2.getSelectedItem();
+			String c1 = (String) colors.getSelectedItem();
+			String c2 = (String) colors2.getSelectedItem();
 
-		switch (c1) {
-			case "BLUE":
-				team1Color = Color.blue;
-				break;
-			case "RED":
-				team1Color = Color.red;
-				break;
-			case "MAGENTA":
-				team1Color = Color.magenta;
-				break;
-			case "PINK":
-				team1Color = Color.pink;
-				break;
-			case "YELLOW":
-				team1Color = Color.yellow;
-				break;
-			case "ORANGE":
-				team1Color = Color.orange;
-				break;
-			case "GREEN":
-				team1Color = Color.green;
-				break;
+			switch (c1) {
+				case "BLUE":
+					team1Color = Color.blue;
+					break;
+				case "RED":
+					team1Color = Color.red;
+					break;
+				case "MAGENTA":
+					team1Color = Color.magenta;
+					break;
+				case "PINK":
+					team1Color = Color.pink;
+					break;
+				case "YELLOW":
+					team1Color = Color.yellow;
+					break;
+				case "ORANGE":
+					team1Color = Color.orange;
+					break;
+				case "GREEN":
+					team1Color = Color.green;
+					break;
+
+			}
+			switch (c2) {
+				case "BLUE":
+					team2Color = Color.blue;
+					break;
+				case "RED":
+					team2Color = Color.red;
+					break;
+				case "MAGENTA":
+					team2Color = Color.magenta;
+					break;
+				case "PINK":
+					team2Color = Color.pink;
+					break;
+				case "YELLOW":
+					team2Color = Color.yellow;
+					break;
+				case "ORANGE":
+					team2Color = Color.orange;
+					break;
+				case "GREEN":
+					team2Color = Color.green;
+					break;
+
+			}
+
+			if (c1.equals(c2)) {
+				team2Color = Color.cyan;
+			}
+			
+			teamName1 = team1Name.getText();
+			if(teamName1.equals("Enter Away Team Name"))
+				teamName1 = "Away Team";
+			labels[1][0].setText(teamName1);
+
+			teamName2 = team2Name.getText();
+			if(teamName2.equals("Enter Home Team Name"))
+				teamName2 = "Home Team";
+			labels[2][0].setText(teamName2);
+		}
+
+		if (e.getSource().equals(continueGame)) {
+			frame.setVisible(true);
+			optionFrame.setVisible(false);
+		}
+		if (e.getSource().equals(endGame)) {
 
 		}
-		switch (c2) {
-			case "BLUE":
-				team2Color = Color.blue;
-				break;
-			case "RED":
-				team1Color = Color.red;
-				break;
-			case "MAGENTA":
-				team2Color = Color.magenta;
-				break;
-			case "PINK":
-				team2Color = Color.pink;
-				break;
-			case "YELLOW":
-				team2Color = Color.yellow;
-				break;
-			case "ORANGE":
-				team2Color = Color.orange;
-				break;
-			case "GREEN":
-				team2Color = Color.green;
-				break;
+		if (e.getSource().equals(skipInning)) {
+			outs = 2;
+			incrementOut();
+		}
+
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_S) {
+
+		} else if (e.getKeyCode() == KeyEvent.VK_E) {
+			optionFrame.setVisible(true);
+			frame.setVisible(false);
 
 		}
-		if(c1 == "BLUE"){
-			team1Color = Color.blue;
-		} else if(c1 == "RED"){
-			team1Color = Color.red;
-		}else if(c1 == "MAGENTA"){
-			team1Color = Color.magenta;
-		}else if(c1 == "PINK"){
-			team1Color = Color.pink;
-		}else if(c1 == "ORANGE"){
-			team1Color = Color.orange;
-		}else if(c1 == "YELLOW"){
-			team1Color = Color.yellow;
-		}else if(c1 == "GREEN"){
-			team1Color = Color.green;
-		}
-		if(c2 == "BLUE"){
-			team2Color = Color.red;
-		} else if(c2 == "RED"){
-			team2Color = Color.red;
-		}else if(c2 == "MAGENTA"){
-			team2Color = Color.magenta;
-		}else if(c2 == "PINK"){
-			team2Color = Color.pink;
-		}else if(c2 == "ORANGE"){
-			team2Color = Color.orange;
-		}else if(c2 == "YELLOW"){
-			team2Color = Color.yellow;
-		}else if(c2 == "GREEN"){
-			team2Color = Color.green;
-		}
-		teamName1 = team1Name.getText();
-		labels[1][0].setText(teamName1);
 
-		teamName2 = team2Name.getText();
-		labels[2][0].setText(teamName2);
+	}
 
+	@Override
+	public void keyReleased(KeyEvent e) {
 	}
 }
