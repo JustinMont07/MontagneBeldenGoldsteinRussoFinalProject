@@ -63,8 +63,8 @@ import java.awt.geom.Point2D;
         double xMove = endPoint.x - upperLeft.x;
         double yMove = endPoint.y - upperLeft.y;
 
-        ySpeed = yMove / 50;
-        xSpeed = xMove / 50;
+        ySpeed = yMove / 45;
+        xSpeed = xMove / 45;
 
     }
 
@@ -78,7 +78,7 @@ import java.awt.geom.Point2D;
        // g.fillOval(upperLeft.x, upperLeft.y, SIZE, SIZE);
 
        g.drawImage(baseballPic, (int)upperLeft.x, (int)upperLeft.y, null);
-       g.fillOval((int)endPoint.x, (int)endPoint.y, SIZE, SIZE);
+       //g.fillOval((int)endPoint.x, (int)endPoint.y, SIZE, SIZE);
 
 
     }
@@ -137,6 +137,7 @@ import java.awt.geom.Point2D;
 
 
     }
+    
 
     /**
      * Set the Image to be used by all Ball objects, to be

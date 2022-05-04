@@ -55,8 +55,8 @@ class Fielder extends AnimatedGraphicsObject {
         double xMove = endPoint.x - upperLeft.x;
         double yMove = endPoint.y - upperLeft.y;
 
-        ySpeed = yMove / 50;
-        xSpeed = xMove / 50;
+        ySpeed = yMove / 45;
+        xSpeed = xMove / 45;
 
     }
 
@@ -100,8 +100,13 @@ class Fielder extends AnimatedGraphicsObject {
             // need to schedule a paint event on this container
             container.repaint();
         }
+        try{
+            sleep(200);
+        } catch (InterruptedException e) {
+        }
 
         done = true;
+        container.repaint();
     }
 
     public boolean near(Point2D.Double s, Point2D.Double e) {

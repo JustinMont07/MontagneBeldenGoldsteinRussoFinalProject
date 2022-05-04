@@ -65,28 +65,38 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	private Object lock = new Object();
 
-	
-	
-				//4 hits 
-				//2 singles , 2 doubles, 1 triple, 5 outs , 1 hr 
+	private boolean power;
+
+	// 4 hits
+	// 2 singles , 2 doubles, 1 triple, 5 outs , 1 hr
 	// 5 Point2D.Doubles for hits, 5 Point2D.Doubles for outs, 1 for home run
 	private Point2D.Double[] leftField = new Point2D.Double[] {
-			 new Point2D.Double(175, 200), new Point2D.Double(200, 325), 
-			 new Point2D.Double(270, 200),new Point2D.Double(150, 250),
-			 new Point2D.Double(250, 150),
-			new Point2D.Double(250, 350), new Point2D.Double(200, 250), new Point2D.Double(250, 250),new Point2D.Double(280, 300), new Point2D.Double(200, 300),
+			new Point2D.Double(175, 200), new Point2D.Double(200, 325),
+			new Point2D.Double(270, 200), new Point2D.Double(150, 250),
+			new Point2D.Double(250, 150),
+			new Point2D.Double(250, 350), new Point2D.Double(200, 250), new Point2D.Double(250, 250),
+			new Point2D.Double(280, 300), new Point2D.Double(225, 225), new Point2D.Double(275, 225),
+			new Point2D.Double(200, 300),
 			new Point2D.Double(125, 115) };
 
 	// 5 Point2D.Doubles for hits, 5 Point2D.Doubles for outs, 1 for home run
 	private Point2D.Double[] centerField = new Point2D.Double[] {
-		 new Point2D.Double(450, 250), new Point2D.Double(340, 250), new Point2D.Double(385, 100),
-			new Point2D.Double(385, 150), new Point2D.Double(385, 300), new Point2D.Double(400, 250),
+			new Point2D.Double(450, 250), new Point2D.Double(325, 225),
+			new Point2D.Double(350, 175), new Point2D.Double(455, 165),
+			new Point2D.Double(425, 100),
+			new Point2D.Double(435, 240), new Point2D.Double(365, 230), new Point2D.Double(425, 165),
+			new Point2D.Double(400, 200), new Point2D.Double(375, 300), new Point2D.Double(400, 250),
+			new Point2D.Double(400, 150),
 			new Point2D.Double(385, 0) };
 
 	// 5 Point2D.Doubles for hits, 5 Point2D.Doubles for outs, 1 for home run
-	private Point2D.Double[] rightField = new Point2D.Double[] { new Point2D.Double(520, 150),
-			new Point2D.Double(570, 325), new Point2D.Double(600, 200),
+	private Point2D.Double[] rightField = new Point2D.Double[] {
+			new Point2D.Double(570, 325), new Point2D.Double(500, 325),
+			new Point2D.Double(600, 250), new Point2D.Double(500, 225),
+			new Point2D.Double(520, 150),
 			new Point2D.Double(520, 350), new Point2D.Double(520, 250), new Point2D.Double(570, 250),
+			new Point2D.Double(530, 275), new Point2D.Double(550, 250), new Point2D.Double(535, 300),
+			new Point2D.Double(500, 250),
 			new Point2D.Double(660, 115) };
 
 	private Image field;
@@ -134,6 +144,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	private Color team1Color;
 	private Color team2Color;
+
+	private boolean isOut;
 
 	// Start BaseballGame object which will draw the BaseballGame as it grows and
 	// allow us to get the final size of it
@@ -243,29 +255,27 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			@Override
 			public void paintComponent(Graphics g) {
 
-
-
 				// first, we should call the paintComponent method we are
 				// overriding in JPanel
 				super.paintComponent(g);
 				g.drawImage(field, 0, 0, null);
 
-
 				// border
 				g.setColor(Color.BLACK);
 				g.drawRect(369, 600, 60, 120);
+				if (power == false) {
+					// red - early - left
+					g.setColor(new Color(230, 0, 0, 100));
+					g.fillRect(369, 600, 60, 40);
 
-				// red - early - left 
-				g.setColor(new Color(230, 0, 0, 100));
-				g.fillRect(369, 600, 60, 40);
-
+					g.setColor(new Color(0, 0, 222, 100));
+					g.fillRect(369, 680, 60, 40);
+				}
 				// Green - middle -
 				g.setColor(new Color(0, 234, 0, 100));
 				g.fillRect(369, 640, 60, 40);
 
-				// blue - late - right 
-				g.setColor(new Color(0, 0, 222, 100));
-				g.fillRect(369, 680, 60, 40);
+				// blue - late - right
 
 				// redraw each BaseballGame's contents, and along the
 				// way, remove the ones that are done
@@ -286,10 +296,15 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				if (list.size() == 0) {
 					draw = true;
 					drawFielders = false;
+					isOut = false;
 					// checks if the hit required the runners to move more
 					if (numBases > 0) {
 						numBases--;
 						moveRunner(1);
+					}
+					if (clickCount == 1) {
+						clickCount = 0;	
+						incrementStrike();				
 					}
 				}
 
@@ -313,19 +328,19 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				g.setColor(fielderColor);
 				if (drawFielders) {
 
-					if (location == 0) {
-						g.fillOval(230, 250, 20, 20);
+					if (location == 1 && isOut) {
 						g.fillOval(390, 200, 20, 20);
 						g.fillOval(550, 250, 20, 20);
-					} else if (location == 1) {
-						g.fillOval(390, 200, 20, 20);
-						g.fillOval(550, 250, 20, 20);
-					} else if (location == 2) {
+					} else if (location == 2 & isOut) {
 						g.fillOval(230, 250, 20, 20);
 						g.fillOval(550, 250, 20, 20);
+					} else if (location == 3 & isOut) {
+						g.fillOval(230, 250, 20, 20);
+						g.fillOval(390, 200, 20, 20);
 					} else {
 						g.fillOval(230, 250, 20, 20);
 						g.fillOval(390, 200, 20, 20);
+						g.fillOval(550, 250, 20, 20);
 					}
 				} else {
 					g.fillOval(230, 250, 20, 20);
@@ -367,6 +382,12 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				}
 
 				g.drawString("Outs: " + outs, 0, 75);
+				g.drawString("Strikes: " + strikes, 0, 100);
+				g.drawString("Controls", 0, 675);
+				g.drawString("Pause - E", 0, 700);
+				g.drawString("Power - P", 0, 725);
+				g.drawString("Steal - S", 0, 750);
+				
 
 				for (int i = 0; i < 7; i++) {
 					labels[0][i].setBackground(Color.white);
@@ -381,7 +402,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						labels[1][curInning + 1].setBorder(BorderFactory.createLineBorder(team1Color, 2));
 					} else {
 						labels[2][curInning + 1].setBorder(BorderFactory.createLineBorder(team2Color, 2));
-					} 
+					}
 				} else {
 					labels[1][curInning + 1].setBorder(BorderFactory.createLineBorder(team1Color, 2));
 				}
@@ -464,10 +485,16 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 			location = contains(((Ball) list.get(0)).getLocation());
 
+			int hit;
 			drawFielders = true;
-			int hit = r.nextInt(11);
+			if (power == true) {
+				hit = r.nextInt(2) + 11;
+			} else {
+				hit = r.nextInt(13);
+			}
 
 			if (location == 1) {
+				strikes = 0;
 				Hit newHit = new Hit(new Point2D.Double(385, 600), panel, leftField[hit]);
 
 				list.add(newHit);
@@ -482,14 +509,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					list.add(newRunner);
 					newRunner.start();
 					runnerCheck[0] = true;
-					Fielder newFielder = new Fielder(LEFT_FIELDER, panel,
-							new Point2D.Double(leftField[hit].x + LEFT_FIELDER.x / 2,
-									leftField[hit].y + LEFT_FIELDER.y / 2),
-							fielderColor);
-					list.add(newFielder);
-					newFielder.start();
 
-				}else if (hit < 4){
+				} else if (hit < 4) {
 					displayText = "Double!";
 					moveRunner(1);
 					numBases = 1;
@@ -498,23 +519,21 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					newRunner.start();
 					runnerCheck[0] = true;
 
-
-				}
-				else if (hit == 4){
-					displayText = "Tripple!";
+				} else if (hit == 4) {
+					displayText = "Triple!";
 					moveRunner(1);
 					numBases = 2;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
 					newRunner.start();
 					runnerCheck[0] = true;
-				}
-				 else if (hit < 10) {
+				} else if (hit < 12) {
 					incrementOut();
 					displayText = "Out!";
 					Fielder newFielder = new Fielder(LEFT_FIELDER, panel, leftField[hit], fielderColor);
 					list.add(newFielder);
 					newFielder.start();
+					isOut = true;
 				} else {
 					displayText = "Homerun!";
 					moveRunner(4);
@@ -523,47 +542,52 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					list.add(newRunner);
 					newRunner.start();
 					runnerCheck[0] = true;
-					Fielder newFielder = new Fielder(LEFT_FIELDER, panel,
-							new Point2D.Double(leftField[hit].x + LEFT_FIELDER.x / 2,
-									leftField[hit].y + LEFT_FIELDER.y / 2),
-							fielderColor);
-					list.add(newFielder);
-					newFielder.start();
-
 
 				}
 				list.get(0).done = true;
 				panel.repaint();
 
-
 			} else if (location == 2) {
-
+				strikes = 0;
 				Hit newHit = new Hit(new Point2D.Double(385, 620), panel, centerField[hit]);
 
 				list.add(newHit);
 				newHit.start();
 				panel.repaint();
 
-				if (hit < 3) {
-					displayText = "hit!";
+				if (hit < 2) {
+					displayText = "Single!";
 					moveRunner(1);
 					numBases = 0;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
 					newRunner.start();
 					runnerCheck[0] = true;
-					Fielder newFielder = new Fielder(CENTER_FIELDER, panel,
-							new Point2D.Double(centerField[hit].x + CENTER_FIELDER.x / 2,
-									centerField[hit].y + CENTER_FIELDER.y / 2),
-							fielderColor);
-					list.add(newFielder);
-					newFielder.start();
-				} else if (hit < 6) {
+
+				} else if (hit < 4) {
+					displayText = "Double!";
+					moveRunner(1);
+					numBases = 1;
+					Runner newRunner = new Runner(runnerColor, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
+
+				} else if (hit == 4) {
+					displayText = "Triple!";
+					moveRunner(1);
+					numBases = 2;
+					Runner newRunner = new Runner(runnerColor, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
+				} else if (hit < 12) {
 					incrementOut();
 					displayText = "Out!";
 					Fielder newFielder = new Fielder(CENTER_FIELDER, panel, centerField[hit], fielderColor);
 					list.add(newFielder);
 					newFielder.start();
+					isOut = true;
 				} else {
 					displayText = "Homerun!";
 					moveRunner(4);
@@ -572,42 +596,50 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					list.add(newRunner);
 					newRunner.start();
 					runnerCheck[0] = true;
-					Fielder newFielder = new Fielder(CENTER_FIELDER, panel,
-							new Point2D.Double(centerField[hit].x + CENTER_FIELDER.x / 2,
-									centerField[hit].y + CENTER_FIELDER.y / 2),
-							fielderColor);
-					list.add(newFielder);
-					newFielder.start();
+
 				}
 				list.get(0).done = true;
 			} else if (location == 3) {
+				strikes = 0;
 				Hit newHit = new Hit(new Point2D.Double(385, 660), panel, rightField[hit]);
 
 				list.add(newHit);
 				newHit.start();
 				panel.repaint();
 
-				if (hit < 3) {
-					displayText = "hit!";
+				if (hit < 2) {
+					displayText = "Single!";
 					moveRunner(1);
 					numBases = 0;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
 					newRunner.start();
 					runnerCheck[0] = true;
-					Fielder newFielder = new Fielder(RIGHT_FIELDER, panel,
-							new Point2D.Double(rightField[hit].x + RIGHT_FIELDER.x / 2,
-									rightField[hit].y + RIGHT_FIELDER.y / 2),
-							fielderColor);
-					list.add(newFielder);
-					newFielder.start();
 
-				} else if (hit < 6) {
+				} else if (hit < 4) {
+					displayText = "Double!";
+					moveRunner(1);
+					numBases = 1;
+					Runner newRunner = new Runner(runnerColor, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
+
+				} else if (hit == 4) {
+					displayText = "Triple!";
+					moveRunner(1);
+					numBases = 2;
+					Runner newRunner = new Runner(runnerColor, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
+					runnerCheck[0] = true;
+				} else if (hit < 12) {
 					incrementOut();
 					displayText = "Out!";
 					Fielder newFielder = new Fielder(RIGHT_FIELDER, panel, rightField[hit], fielderColor);
 					list.add(newFielder);
 					newFielder.start();
+					isOut = true;
 				} else {
 					displayText = "Homerun!";
 					moveRunner(4);
@@ -616,12 +648,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					list.add(newRunner);
 					newRunner.start();
 					runnerCheck[0] = true;
-					Fielder newFielder = new Fielder(RIGHT_FIELDER, panel,
-							new Point2D.Double(rightField[hit].x + RIGHT_FIELDER.x / 2,
-									rightField[hit].y + RIGHT_FIELDER.y / 2),
-							fielderColor);
-					list.add(newFielder);
-					newFielder.start();
+
 				}
 
 				list.get(0).done = true;
@@ -630,7 +657,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			else {
 
 				list.get(0).done = true;
-
+				incrementStrike();
 			}
 			clickCount = 0;
 		}
@@ -681,22 +708,30 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 	}
 
 	public int contains(Point2D.Double p) {
+
+		int c = 0;
+
 		if (p.x >= 369 && p.x <= 369 + 60 &&
 				p.y >= 600 && p.y <= 600 + 40) {
 
-			return 1;
+			c = 1;
 
 		} else if (p.x >= 369 && p.x <= 369 + 60 &&
 				p.y >= 640 && p.y <= 640 + 40) {
-			return 2;
+			c = 2;
 
 		} else if (p.x >= 369 && p.x <= 369 + 60 &&
 				p.y >= 680 && p.y <= 680 + 40) {
 
-			return 3;
+			c = 3;
 
 		}
-		return 0;
+		if (power) {
+			if (c != 2) {
+				c = 0;
+			}
+		}
+		return c;
 
 	}
 
@@ -719,9 +754,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					}
 				}
 
-			}
-			else{
-				if(curInning == 4){
+			} else {
+				if (curInning == 4) {
 					if (team2Score[5] > team1Score[5])
 						displayText = teamName2 + "wins!";
 				}
@@ -731,6 +765,17 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				runnerCheck[i] = false;
 			}
 		}
+	}
+
+	private void incrementStrike() {
+		if (strikes != 2) {
+			strikes++;
+		} else {
+			incrementOut();
+			strikes = 0;
+
+		}
+
 	}
 
 	public static void main(String args[]) {
@@ -806,14 +851,14 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			if (c1.equals(c2)) {
 				team2Color = Color.cyan;
 			}
-			
+
 			teamName1 = team1Name.getText();
-			if(teamName1.equals("Enter Away Team Name"))
+			if (teamName1.equals("Enter Away Team Name"))
 				teamName1 = "Away Team";
 			labels[1][0].setText(teamName1);
 
 			teamName2 = team2Name.getText();
-			if(teamName2.equals("Enter Home Team Name"))
+			if (teamName2.equals("Enter Home Team Name"))
 				teamName2 = "Home Team";
 			labels[2][0].setText(teamName2);
 		}
@@ -839,6 +884,28 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_S) {
+			Random rand = new Random();
+			int chance = rand.nextInt(10);
+
+			if (runnerCheck[2]) {
+				chance = 5;
+			}
+			if (list.size() == 0) {
+				if (chance < 4) {
+					numBases++;
+				} else {
+					for (int i = 2; i > 0; i--) {
+						if (runnerCheck[i]) {
+							incrementOut();
+							runnerCheck[i] = false;
+							break;
+						}
+						numBases++;
+					}
+				}
+			}
+
+			panel.repaint();
 
 		} else if (e.getKeyCode() == KeyEvent.VK_E) {
 			optionFrame.setVisible(true);
@@ -846,6 +913,15 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 		}
 
+		else if (e.getKeyCode() == KeyEvent.VK_P && list.size() == 0) {
+			if (power == true) {
+				power = false;
+			} else {
+				power = true;
+			}
+			panel.repaint();
+
+		}
 	}
 
 	@Override

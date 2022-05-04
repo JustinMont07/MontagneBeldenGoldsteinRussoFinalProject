@@ -1,6 +1,7 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.geom.Point2D;
+import java.util.Random;
 
 /**
  * The FallingBall class is responsible for managing the life of
@@ -50,11 +51,12 @@ import java.awt.geom.Point2D;
      */
     public Ball(Point2D.Double startTopCenter, JComponent container, int ySpeed) {
         super(container);
+        Random r = new Random();
 
         upperLeft = new Point2D.Double(startTopCenter.x - 100 / 2, startTopCenter.y);
         this.bottom = container.getHeight();
         this.container = container;
-        this.ySpeed = ySpeed;
+        this.ySpeed = r.nextInt(9) + 5;
     }
 
     /**

@@ -75,8 +75,8 @@ public class Runner extends AnimatedGraphicsObject {
         double xMove = endPoint.x - upperLeft.x;
         double yMove = endPoint.y - upperLeft.y;
 
-        ySpeed = yMove / 50;
-        xSpeed = xMove / 50;
+        ySpeed = yMove / 45;
+        xSpeed = xMove / 45;
 
 
 
