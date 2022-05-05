@@ -408,11 +408,13 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				g.drawString("Power - P", 0, 725);
 				g.drawString("Steal - S", 0, 750);
 
-				if(!playing) {
+				if (!playing) {
 					newFont = new Font("Arial", Font.BOLD, 30);
 					g.setFont(newFont);
 					g.drawString(endGameText, pWidth / 2 - (strWidth / 2) - 120, pHeight / 2 -
-					ascent);
+							ascent);
+							g.drawString("Click anywhere to play again!",pWidth / 2 - (strWidth / 2) - 120, pHeight / 2 -
+							ascent + 40);
 				}
 
 				for (int i = 0; i < 7; i++) {
@@ -490,214 +492,236 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 	 */
 	@Override
 	public void mousePressed(MouseEvent e) {
+		if (playing) {
 
-		// ball drops from homebase
-		if (list.size() == 0) {
+			// ball drops from homebase
+			if (list.size() == 0) {
 
-			caughtRunning = false;
-			Ball newBall = new Ball(new Point2D.Double(433, 470), panel, 5);
-			list.add(newBall);
+				caughtRunning = false;
+				Ball newBall = new Ball(new Point2D.Double(433, 470), panel, 5);
+				list.add(newBall);
 
-			// calling start on the object that extends Thread results in
-			// its run method being called once the operating system and
-			// JVM have set up the thread
-			newBall.start();
-			panel.repaint();
-			clickCount = 1;
-
-		} else if (list.size() > 0 && clickCount == 1) {
-			// mouse clicked for second time while ball is in screen
-
-			Random r = new Random();
-
-			location = contains(((Ball) list.get(0)).getLocation());
-
-			int hit;
-			drawFielders = true;
-			if (power == true) {
-				hit = r.nextInt(2) + 11;
-			} else {
-				hit = r.nextInt(13);
-			}
-
-			if (location == 1) {
-				strikes = 0;
-				Hit newHit = new Hit(new Point2D.Double(385, 600), panel, leftField[hit]);
-
-				list.add(newHit);
-				newHit.start();
+				// calling start on the object that extends Thread results in
+				// its run method being called once the operating system and
+				// JVM have set up the thread
+				newBall.start();
 				panel.repaint();
+				clickCount = 1;
 
-				if (hit < 2) {
-					displayText = "Single!";
-					moveRunner();
-					numBases = 0;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
+			} else if (list.size() > 0 && clickCount == 1) {
+				// mouse clicked for second time while ball is in screen
 
-				} else if (hit < 4) {
-					displayText = "Double!";
-					moveRunner();
-					numBases = 1;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
+				Random r = new Random();
 
-				} else if (hit == 4) {
-					displayText = "Triple!";
-					moveRunner();
-					numBases = 2;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
-				} else if (hit < 12) {
-					incrementOut();
-					displayText = "Out!";
-					Fielder newFielder = new Fielder(LEFT_FIELDER, panel, leftField[hit], fielderColor);
-					list.add(newFielder);
-					newFielder.start();
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					isOut = true;
+				location = contains(((Ball) list.get(0)).getLocation());
+
+				int hit;
+				drawFielders = true;
+				if (power == true) {
+					hit = r.nextInt(2) + 11;
 				} else {
-					displayText = "Homerun!";
-					moveRunner();
-					numBases = 3;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
-
-				}
-				list.get(0).done = true;
-				panel.repaint();
-
-			} else if (location == 2) {
-				strikes = 0;
-				Hit newHit = new Hit(new Point2D.Double(385, 620), panel, centerField[hit]);
-
-				list.add(newHit);
-				newHit.start();
-				panel.repaint();
-
-				if (hit < 2) {
-					displayText = "Single!";
-					moveRunner();
-					numBases = 0;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
-
-				} else if (hit < 4) {
-					displayText = "Double!";
-					moveRunner();
-					numBases = 1;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
-
-				} else if (hit == 4) {
-					displayText = "Triple!";
-					moveRunner();
-					numBases = 2;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
-				} else if (hit < 12) {
-					incrementOut();
-					displayText = "Out!";
-					Fielder newFielder = new Fielder(CENTER_FIELDER, panel, centerField[hit], fielderColor);
-					list.add(newFielder);
-					newFielder.start();
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					isOut = true;
-				} else {
-					displayText = "Homerun!";
-					moveRunner();
-					numBases = 3;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
-
-				}
-				list.get(0).done = true;
-			} else if (location == 3) {
-				strikes = 0;
-				Hit newHit = new Hit(new Point2D.Double(385, 660), panel, rightField[hit]);
-
-				list.add(newHit);
-				newHit.start();
-				panel.repaint();
-
-				if (hit < 2) {
-					displayText = "Single!";
-					moveRunner();
-					numBases = 0;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
-
-				} else if (hit < 4) {
-					displayText = "Double!";
-					moveRunner();
-					numBases = 1;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
-
-				} else if (hit == 4) {
-					displayText = "Triple!";
-					moveRunner();
-					numBases = 2;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
-				} else if (hit < 12) {
-					incrementOut();
-					displayText = "Out!";
-					Fielder newFielder = new Fielder(RIGHT_FIELDER, panel, rightField[hit], fielderColor);
-					list.add(newFielder);
-					newFielder.start();
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					isOut = true;
-				} else {
-					displayText = "Homerun!";
-					moveRunner();
-					numBases = 3;
-					Runner newRunner = new Runner(runnerColor, 0, panel);
-					list.add(newRunner);
-					newRunner.start();
-					runnerCheck[0] = true;
-
+					hit = r.nextInt(13);
 				}
 
-				list.get(0).done = true;
+				if (location == 1) {
+					strikes = 0;
+					Hit newHit = new Hit(new Point2D.Double(385, 600), panel, leftField[hit]);
+
+					list.add(newHit);
+					newHit.start();
+					panel.repaint();
+
+					if (hit < 2) {
+						displayText = "Single!";
+						moveRunner();
+						numBases = 0;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+
+					} else if (hit < 4) {
+						displayText = "Double!";
+						moveRunner();
+						numBases = 1;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+
+					} else if (hit == 4) {
+						displayText = "Triple!";
+						moveRunner();
+						numBases = 2;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+					} else if (hit < 12) {
+						incrementOut();
+						displayText = "Out!";
+						Fielder newFielder = new Fielder(LEFT_FIELDER, panel, leftField[hit], fielderColor);
+						list.add(newFielder);
+						newFielder.start();
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						isOut = true;
+					} else {
+						displayText = "Homerun!";
+						moveRunner();
+						numBases = 3;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+
+					}
+					list.get(0).done = true;
+					panel.repaint();
+
+				} else if (location == 2) {
+					strikes = 0;
+					Hit newHit = new Hit(new Point2D.Double(385, 620), panel, centerField[hit]);
+
+					list.add(newHit);
+					newHit.start();
+					panel.repaint();
+
+					if (hit < 2) {
+						displayText = "Single!";
+						moveRunner();
+						numBases = 0;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+
+					} else if (hit < 4) {
+						displayText = "Double!";
+						moveRunner();
+						numBases = 1;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+
+					} else if (hit == 4) {
+						displayText = "Triple!";
+						moveRunner();
+						numBases = 2;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+					} else if (hit < 12) {
+						incrementOut();
+						displayText = "Out!";
+						Fielder newFielder = new Fielder(CENTER_FIELDER, panel, centerField[hit], fielderColor);
+						list.add(newFielder);
+						newFielder.start();
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						isOut = true;
+					} else {
+						displayText = "Homerun!";
+						moveRunner();
+						numBases = 3;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+
+					}
+					list.get(0).done = true;
+				} else if (location == 3) {
+					strikes = 0;
+					Hit newHit = new Hit(new Point2D.Double(385, 660), panel, rightField[hit]);
+
+					list.add(newHit);
+					newHit.start();
+					panel.repaint();
+
+					if (hit < 2) {
+						displayText = "Single!";
+						moveRunner();
+						numBases = 0;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+
+					} else if (hit < 4) {
+						displayText = "Double!";
+						moveRunner();
+						numBases = 1;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+
+					} else if (hit == 4) {
+						displayText = "Triple!";
+						moveRunner();
+						numBases = 2;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+					} else if (hit < 12) {
+						incrementOut();
+						displayText = "Out!";
+						Fielder newFielder = new Fielder(RIGHT_FIELDER, panel, rightField[hit], fielderColor);
+						list.add(newFielder);
+						newFielder.start();
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						isOut = true;
+					} else {
+						displayText = "Homerun!";
+						moveRunner();
+						numBases = 3;
+						Runner newRunner = new Runner(runnerColor, 0, panel);
+						list.add(newRunner);
+						newRunner.start();
+						runnerCheck[0] = true;
+
+					}
+
+					list.get(0).done = true;
+				}
+
+				else {
+
+					list.get(0).done = true;
+					incrementStrike();
+				}
+				clickCount = 0;
 			}
 
-			else {
-
-				list.get(0).done = true;
-				incrementStrike();
-			}
-			clickCount = 0;
 		}
+		else{
+			playing = true;
 
+			curInning = 0;
+			team = 1;
+			for( int i = 1; i< 6; i++){
+
+				labels[1][i] .setText("0");
+				labels[2][i] .setText("0");
+			}
+			outs = 0;
+			strikes = 0;
+
+			for( int i = 0; i< 3; i++){
+				runnerCheck[i] = false;
+
+			}
+			panel.repaint();
+
+		}
 	}
 
 	public void moveRunner() {
@@ -799,7 +823,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				if (curInning == 4) {
 					if (team2Score[5] > team1Score[5])
 						playing = false;
-						endGameText = teamName2 + " wins";
+					endGameText = teamName2 + " wins";
 				}
 			}
 			outs = 0;
@@ -939,6 +963,14 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			optionFrame.setVisible(false);
 		}
 		if (e.getSource().equals(endGame)) {
+			curInning = 5;
+			outs = 2;
+			incrementOut();
+
+			if (team1Score[5] == team2Score[5]) {
+				endGameText = "Game has ended in a tie!";
+				playing = false;
+			}
 
 		}
 		if (e.getSource().equals(skipInning)) {
