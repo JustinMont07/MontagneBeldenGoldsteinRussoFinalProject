@@ -730,6 +730,10 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			if (c != 2) {
 				c = 0;
 			}
+			else{
+				Random r = new Random();
+				c = r.nextInt(3) + 1;
+			}
 		}
 		return c;
 
@@ -892,7 +896,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			}
 			if (list.size() == 0) {
 				if (chance < 4) {
-					numBases++;
+					numBases = 1;
 				} else {
 					for (int i = 2; i > 0; i--) {
 						if (runnerCheck[i]) {
@@ -900,7 +904,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 							runnerCheck[i] = false;
 							break;
 						}
-						numBases++;
+						numBases = 1;
 					}
 				}
 			}
