@@ -119,15 +119,13 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 	private Color runnerColor;
 
 	private JPanel startMenu;
-	private JComboBox colors;
-	private JComboBox colors2;
+	private JComboBox<String> colors;
+	private JComboBox<String> colors2;
 	private JTextField team1Name;
 	private JTextField team2Name;
 	private JPanel startButton;
 	private JButton start;
 	private JPanel startPanel;
-
-	private CardLayout layout;
 
 	private JFrame frame;
 
@@ -154,7 +152,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 	private boolean caughtRunning;
 
 	private int runnerCaught;
-
 
 	private String colorSwap;
 
@@ -183,7 +180,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		team = 1;
 		curInning = 0;
 		teamChange = false;
-		layout = new CardLayout();
 		playing = true;
 		colorSwap = "";
 
@@ -217,8 +213,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		team1Name = new JTextField("Enter Away Team Name");
 		team2Name = new JTextField("Enter Home Team Name");
 		String[] colorOptions = new String[] { "BLUE", "RED", "MAGENTA", "PINK", "GREEN", "ORANGE", "YELLOW" };
-		colors = new JComboBox(colorOptions);
-		colors2 = new JComboBox(colorOptions);
+		colors = new JComboBox<>(colorOptions);
+		colors2 = new JComboBox<>(colorOptions);
 
 		startPanel = new JPanel(new GridLayout(2, 1));
 
@@ -262,8 +258,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		skipInning.addActionListener(this);
 		endGame.addActionListener(this);
 		continueGame.addActionListener(this);
-
-		
 
 		// JPanel with a paintComponent method
 		panel = new JPanel(new BorderLayout()) {
@@ -321,8 +315,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						caughtRunner(runnerCaught);
 						if (numBases == 0) {
 							incrementOut();
-						}
-					} 
+						} 
+					}
 					if (clickCount == 1) {
 						clickCount = 0;
 						incrementStrike();
@@ -383,9 +377,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					}
 				}
 
-				// Checks if list is empty and that the user isn't currently making ,a
-				// BaseballGame. Displays a message in
-				// the center of window telling you how to make a new BaseballGame
+				// Checks if list isnt empty to display a message of what happened in that at bat.
 
 				g.setColor(Color.black);
 				FontMetrics str = g.getFontMetrics();
@@ -396,43 +388,36 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				int ascent = (str.getAscent());
 				g.setFont(newFont);
 				if (list.size() != 0) {
-					int x =0;
-					int y =0;
-					//27
-					if(displayText.equals("Out!") ){
+					int x = 0;
+					int y = 0;
+					// 27
+					if (displayText.equals("Out!")) {
 						x = 652;
 
-					}else if(displayText.equals("Single!") ){
+					} else if (displayText.equals("Single!")) {
 						x = 635;
-					}
-					else if(displayText.equals("Double!") ){
+					} else if (displayText.equals("Double!")) {
 						x = 631;
-					}
-					else if(displayText.equals("Triple!") ){
+					} else if (displayText.equals("Triple!")) {
 						x = 638;
-					}
-					else if(displayText.equals("Homerun!") ){
+					} else if (displayText.equals("Homerun!")) {
 						x = 620;
 					}
-					
-					g.drawString(displayText,x,670 + (100 - ascent)/2);
+
+					g.drawString(displayText, x, 670 + (100 - ascent) / 2);
 				} else {
 					displayText = "";
 				}
-				//color swap 
+				// color swap
 				newFont = new Font("arial", Font.BOLD, 17);
 				g.setFont(newFont);
-				if( !colorSwap.equals("")&& list.size() == 0){
+				if (!colorSwap.equals("") && list.size() == 0) {
 
-				
-
-					g.drawString(colorSwap,610,670 + (100 - ascent)/2 );
+					g.drawString(colorSwap, 610, 670 + (100 - ascent) / 2);
 				}
 
 				newFont = new Font("arial", Font.BOLD, 18);
 				g.setFont(newFont);
-
-				
 
 				g.drawString("Outs: " + outs, 15, 75);
 				g.drawString("Strikes: " + strikes, 15, 100);
@@ -441,25 +426,24 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				g.drawString("Power - P", 15, 725);
 				g.drawString("Steal - S", 15, 750);
 
-				Graphics2D menueBox = (Graphics2D) g; 
+				Graphics2D menueBox = (Graphics2D) g;
 				menueBox.setStroke(new BasicStroke(5));
 
 				menueBox.drawRect(10, 655, 100, 100);
 
-				//right box - status
+				// right box - status
 				menueBox.drawRect(600, 655, 160, 100);
-			
-			
+
 				if (!playing) {
 					newFont = new Font("Arial", Font.BOLD, 30);
 					g.setFont(newFont);
 
 					strWidth = str.stringWidth(endGameText);
-					g.drawString(endGameText, pWidth / 2 - (strWidth / 2) - 100 , pHeight / 2 -
+					g.drawString(endGameText, pWidth / 2 - (strWidth / 2) - 100, pHeight / 2 -
 							ascent);
 
-							strWidth = str.stringWidth("Click anywhere to play again!");
-							g.drawString("Click anywhere to play again!",pWidth / 2 - (strWidth / 2)- 120, pHeight / 2 -
+					strWidth = str.stringWidth("Click anywhere to play again!");
+					g.drawString("Click anywhere to play again!", pWidth / 2 - (strWidth / 2) - 120, pHeight / 2 -
 							ascent + 40);
 				}
 
@@ -748,21 +732,20 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				clickCount = 0;
 			}
 
-		}
-		else{
+		} else {
 			playing = true;
 
 			curInning = 0;
 			team = 1;
-			for( int i = 1; i< 6; i++){
+			for (int i = 1; i < 6; i++) {
 
-				labels[1][i] .setText("0");
-				labels[2][i] .setText("0");
+				labels[1][i].setText("0");
+				labels[2][i].setText("0");
 			}
 			outs = 0;
 			strikes = 0;
 
-			for( int i = 0; i< 3; i++){
+			for (int i = 0; i < 3; i++) {
 				runnerCheck[i] = false;
 
 			}
@@ -844,7 +827,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		return c;
 
 	}
-
 
 	private void incrementOut() {
 		if (outs != 2) {
@@ -1054,28 +1036,12 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 							runnerCaught = i;
 							numBases = 1;
 							displayText = "Out!";
-							
+
 							break;
 						}
 					}
 				}
-			}
-			// else {
-			// if(chance < 4){
-			// stretch = true;
-			// System.out.println(numBases);
-			// } else {
-			// for (int i = 2; i > 0; i--) {
-			// if (runnerCheck[i]) {
-			// caughtRunning = true;
-			// runnerCaught = i;
-			// System.out.println(numBases);
-			// break;
-			// }
-			// stretch = true;
-			// }
-			// }
-			// }
+			} 
 
 			panel.repaint();
 
