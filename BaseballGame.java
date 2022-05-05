@@ -388,32 +388,69 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				g.setColor(Color.black);
 				FontMetrics str = g.getFontMetrics();
-				Font newFont = new Font("arial", Font.BOLD, 18);
+				Font newFont = new Font("arial", Font.BOLD, 25);
 				int pHeight = this.getHeight();
 				int pWidth = this.getWidth();
 				int strWidth = str.stringWidth(displayText);
 				int ascent = (str.getAscent());
 				g.setFont(newFont);
 				if (list.size() != 0) {
-					g.drawString(displayText, pWidth / 2 - (strWidth / 2), pHeight / 2 -
-							ascent);
+					int x =0;
+					int y =0;
+					//27
+					if(displayText.equals("Out!") ){
+						x = 652;
+
+					}else if(displayText.equals("Single!") ){
+						x = 635;
+					}
+					else if(displayText.equals("Double!") ){
+						x = 631;
+					}
+					else if(displayText.equals("Triple!") ){
+						x = 638;
+					}
+					else if(displayText.equals("Homerun!") ){
+						x = 620;
+					}
+					
+					g.drawString(displayText,x,670 + (100 - ascent)/2);
+					System.out.println(x);
 				} else {
 					displayText = "";
 				}
 
-				g.drawString("Outs: " + outs, 0, 75);
-				g.drawString("Strikes: " + strikes, 0, 100);
-				g.drawString("Controls", 0, 675);
-				g.drawString("Pause - E", 0, 700);
-				g.drawString("Power - P", 0, 725);
-				g.drawString("Steal - S", 0, 750);
+				newFont = new Font("arial", Font.BOLD, 18);
+				g.setFont(newFont);
 
+				
+
+				g.drawString("Outs: " + outs, 15, 75);
+				g.drawString("Strikes: " + strikes, 15, 100);
+				g.drawString("Controls", 15, 675);
+				g.drawString("Pause - E", 15, 700);
+				g.drawString("Power - P", 15, 725);
+				g.drawString("Steal - S", 15, 750);
+
+				Graphics2D menueBox = (Graphics2D) g; 
+				menueBox.setStroke(new BasicStroke(5));
+
+				menueBox.drawRect(10, 655, 100, 100);
+
+				//right box - status
+				menueBox.drawRect(600, 655, 160, 100);
+			
+			
 				if (!playing) {
 					newFont = new Font("Arial", Font.BOLD, 30);
 					g.setFont(newFont);
-					g.drawString(endGameText, pWidth / 2 - (strWidth / 2) - 120, pHeight / 2 -
+
+					strWidth = str.stringWidth(endGameText);
+					g.drawString(endGameText, pWidth / 2 - (strWidth / 2) - 100 , pHeight / 2 -
 							ascent);
-							g.drawString("Click anywhere to play again!",pWidth / 2 - (strWidth / 2) - 120, pHeight / 2 -
+
+							strWidth = str.stringWidth("Click anywhere to play again!");
+							g.drawString("Click anywhere to play again!",pWidth / 2 - (strWidth / 2)- 120, pHeight / 2 -
 							ascent + 40);
 				}
 
@@ -1003,6 +1040,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 							caughtRunning = true;
 							runnerCaught = i;
 							numBases = 1;
+							displayText = "Out!";
+							
 							break;
 						}
 					}
