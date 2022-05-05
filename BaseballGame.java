@@ -151,6 +151,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	private int runnerCaught;
 
+	private boolean stretch;
+
 	// Start BaseballGame object which will draw the BaseballGame as it grows and
 	// allow us to get the final size of it
 	// private Baseball b;
@@ -312,6 +314,9 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						if(numBases == 0){
 							incrementOut();
 						}
+					} else if(numBases == 0 && stretch){
+						numBases = 1;
+						panel.repaint();
 					}
 					if (clickCount == 1) {
 						clickCount = 0;	
@@ -960,21 +965,22 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						}
 					}
 				}
-			} //else {
-				//if(chance < 4){
-				//	numBases+= 1;
-				//	System.out.println(numBases);
-				//} else {
-				//	for (int i = 2; i > 0; i--) {
-				//		if (runnerCheck[i]) {
-				//			caughtRunning = true;
-				//			runnerCaught = i;
-				//			System.out.println(numBases);
-				//			break;
-				//		}
-				//		numBases+=1;
-				//	}
-				//}
+			} 
+			//else {
+			//	if(chance < 4){
+			//		stretch = true;
+			//		System.out.println(numBases);
+			//	} else {
+			//		for (int i = 2; i > 0; i--) {
+			//			if (runnerCheck[i]) {
+			//				caughtRunning = true;
+			//				runnerCaught = i;
+			//				System.out.println(numBases);
+			//				break;
+			//			}
+			//			stretch = true;
+			//		}
+			//	}
 			//}
 
 			panel.repaint();
