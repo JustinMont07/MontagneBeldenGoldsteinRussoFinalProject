@@ -422,7 +422,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				//color swap 
 				newFont = new Font("arial", Font.BOLD, 17);
 				g.setFont(newFont);
-				if( !colorSwap.equals("")){
+				if( !colorSwap.equals("")&& list.size() == 0){
 
 				
 
