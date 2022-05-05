@@ -155,7 +155,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	private int runnerCaught;
 
-	private boolean stretch;
+
+	private String colorSwap;
 
 	// Start BaseballGame object which will draw the BaseballGame as it grows and
 	// allow us to get the final size of it
@@ -184,6 +185,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		teamChange = false;
 		layout = new CardLayout();
 		playing = true;
+		colorSwap = "";
 
 	}
 
@@ -261,6 +263,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		endGame.addActionListener(this);
 		continueGame.addActionListener(this);
 
+		
+
 		// JPanel with a paintComponent method
 		panel = new JPanel(new BorderLayout()) {
 			@Override
@@ -318,10 +322,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						if (numBases == 0) {
 							incrementOut();
 						}
-					} else if (numBases == 0 && stretch) {
-						numBases = 1;
-						panel.repaint();
-					}
+					} 
 					if (clickCount == 1) {
 						clickCount = 0;
 						incrementStrike();
@@ -415,9 +416,17 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					}
 					
 					g.drawString(displayText,x,670 + (100 - ascent)/2);
-					System.out.println(x);
 				} else {
 					displayText = "";
+				}
+				//color swap 
+				newFont = new Font("arial", Font.BOLD, 17);
+				g.setFont(newFont);
+				if( !colorSwap.equals("")){
+
+				
+
+					g.drawString(colorSwap,610,670 + (100 - ascent)/2 );
 				}
 
 				newFont = new Font("arial", Font.BOLD, 18);
@@ -531,6 +540,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 	public void mousePressed(MouseEvent e) {
 		if (playing) {
 
+			colorSwap = "";
 			// ball drops from homebase
 			if (list.size() == 0) {
 
@@ -555,7 +565,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				int hit;
 				drawFielders = true;
 				if (power == true) {
-					hit = r.nextInt(2) + 11;
+					hit = r.nextInt(4) + 9;
 				} else {
 					hit = r.nextInt(13);
 				}
@@ -835,11 +845,14 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	}
 
+
 	private void incrementOut() {
 		if (outs != 2) {
 			outs++;
 		} else {
 			teamChange = true;
+			power = false;
+			colorSwap = "Changing Sides!";
 			if (team == 2) {
 				if (curInning < 4) {
 					curInning++;
