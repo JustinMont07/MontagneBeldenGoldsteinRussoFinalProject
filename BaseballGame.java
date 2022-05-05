@@ -147,6 +147,10 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	private boolean isOut;
 
+	private boolean caughtRunning;
+
+	private int runnerCaught;
+
 	// Start BaseballGame object which will draw the BaseballGame as it grows and
 	// allow us to get the final size of it
 	// private Baseball b;
@@ -298,9 +302,16 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					drawFielders = false;
 					isOut = false;
 					// checks if the hit required the runners to move more
-					if (numBases > 0) {
+					if (numBases > 0 && !caughtRunning) {
 						numBases--;
-						moveRunner(1);
+						moveRunner();
+					} 
+					else if(numBases > 0 && caughtRunning){
+						numBases--;
+						caughtRunner(runnerCaught);
+						if(numBases == 0){
+							incrementOut();
+						}
 					}
 					if (clickCount == 1) {
 						clickCount = 0;	
@@ -468,6 +479,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		// ball drops from homebase
 		if (list.size() == 0) {
 
+			caughtRunning = false;
 			Ball newBall = new Ball(new Point2D.Double(433, 470), panel, 5);
 			list.add(newBall);
 
@@ -477,6 +489,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			newBall.start();
 			panel.repaint();
 			clickCount = 1;
+			
 
 		} else if (list.size() > 0 && clickCount == 1) {
 			// mouse clicked for second time while ball is in screen
@@ -503,7 +516,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				if (hit < 2) {
 					displayText = "Single!";
-					moveRunner(1);
+					moveRunner();
 					numBases = 0;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -512,7 +525,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				} else if (hit < 4) {
 					displayText = "Double!";
-					moveRunner(1);
+					moveRunner();
 					numBases = 1;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -521,7 +534,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				} else if (hit == 4) {
 					displayText = "Triple!";
-					moveRunner(1);
+					moveRunner();
 					numBases = 2;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -533,10 +546,13 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					Fielder newFielder = new Fielder(LEFT_FIELDER, panel, leftField[hit], fielderColor);
 					list.add(newFielder);
 					newFielder.start();
+					Runner newRunner = new Runner(runnerColor, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
 					isOut = true;
 				} else {
 					displayText = "Homerun!";
-					moveRunner(4);
+					moveRunner();
 					numBases = 3;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -557,7 +573,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				if (hit < 2) {
 					displayText = "Single!";
-					moveRunner(1);
+					moveRunner();
 					numBases = 0;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -566,7 +582,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				} else if (hit < 4) {
 					displayText = "Double!";
-					moveRunner(1);
+					moveRunner();
 					numBases = 1;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -575,7 +591,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				} else if (hit == 4) {
 					displayText = "Triple!";
-					moveRunner(1);
+					moveRunner();
 					numBases = 2;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -587,10 +603,13 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					Fielder newFielder = new Fielder(CENTER_FIELDER, panel, centerField[hit], fielderColor);
 					list.add(newFielder);
 					newFielder.start();
+					Runner newRunner = new Runner(runnerColor, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
 					isOut = true;
 				} else {
 					displayText = "Homerun!";
-					moveRunner(4);
+					moveRunner();
 					numBases = 3;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -609,7 +628,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				if (hit < 2) {
 					displayText = "Single!";
-					moveRunner(1);
+					moveRunner();
 					numBases = 0;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -618,7 +637,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				} else if (hit < 4) {
 					displayText = "Double!";
-					moveRunner(1);
+					moveRunner();
 					numBases = 1;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -627,7 +646,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				} else if (hit == 4) {
 					displayText = "Triple!";
-					moveRunner(1);
+					moveRunner();
 					numBases = 2;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -639,10 +658,13 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					Fielder newFielder = new Fielder(RIGHT_FIELDER, panel, rightField[hit], fielderColor);
 					list.add(newFielder);
 					newFielder.start();
+					Runner newRunner = new Runner(runnerColor, 0, panel);
+					list.add(newRunner);
+					newRunner.start();
 					isOut = true;
 				} else {
 					displayText = "Homerun!";
-					moveRunner(4);
+					moveRunner();
 					numBases = 3;
 					Runner newRunner = new Runner(runnerColor, 0, panel);
 					list.add(newRunner);
@@ -664,7 +686,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	}
 
-	public void moveRunner(int numBases) {
+	public void moveRunner() {
 		draw = false;
 		boolean temp[] = new boolean[3];
 		for (int i = runnerCheck.length - 1; i >= 0; i--) {
@@ -703,7 +725,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				temp[i] = false;
 			}
 		}
-
+		
 		panel.repaint();
 	}
 
@@ -781,6 +803,35 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		}
 
 	}
+
+	private void caughtRunner(int runner){
+		draw = false;
+		boolean temp[] = new boolean[3];
+		for (int i = runnerCheck.length - 1; i >= 0; i--) {
+			if (runnerCheck[i]) {
+				runnerCheck[i] = false;
+				temp[i] = false;
+				Runner curRunner = new Runner(runnerColor, i + 1, panel);
+				list.add(curRunner);
+				curRunner.start();
+				if (i != 2) {
+					temp[i + 1] = true;
+				}
+			}
+		}
+		for (int i = 0; i < runnerCheck.length; i++) {
+			if (temp[i]) {
+				if(i == runner + 1){
+					runnerCheck[i] = false;
+				} else {
+					runnerCheck[i] = true;
+				}
+				temp[i] = false;
+			}
+		}
+		panel.repaint();
+	}
+	
 
 	public static void main(String args[]) {
 
@@ -883,6 +934,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	@Override
 	public void keyTyped(KeyEvent e) {
+		
 	}
 
 	@Override
@@ -891,23 +943,39 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			Random rand = new Random();
 			int chance = rand.nextInt(10);
 
-			if (runnerCheck[2]) {
-				chance = 5;
-			}
+			
 			if (list.size() == 0) {
+				if (runnerCheck[2]) {
+					chance = 5;
+				}
 				if (chance < 4) {
 					numBases = 1;
 				} else {
 					for (int i = 2; i > 0; i--) {
 						if (runnerCheck[i]) {
-							incrementOut();
-							runnerCheck[i] = false;
+							caughtRunning = true;
+							runnerCaught = i;
+							numBases = 1;
 							break;
 						}
-						numBases = 1;
 					}
 				}
-			}
+			} //else {
+				//if(chance < 4){
+				//	numBases+= 1;
+				//	System.out.println(numBases);
+				//} else {
+				//	for (int i = 2; i > 0; i--) {
+				//		if (runnerCheck[i]) {
+				//			caughtRunning = true;
+				//			runnerCaught = i;
+				//			System.out.println(numBases);
+				//			break;
+				//		}
+				//		numBases+=1;
+				//	}
+				//}
+			//}
 
 			panel.repaint();
 
