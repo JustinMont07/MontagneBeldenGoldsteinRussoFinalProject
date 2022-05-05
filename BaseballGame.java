@@ -67,6 +67,10 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	private boolean power;
 
+	private boolean playing;
+
+	private String endGameText;
+
 	// 4 hits
 	// 2 singles , 2 doubles, 1 triple, 5 outs , 1 hr
 	// 5 Point2D.Doubles for hits, 5 Point2D.Doubles for outs, 1 for home run
@@ -179,6 +183,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		curInning = 0;
 		teamChange = false;
 		layout = new CardLayout();
+		playing = true;
 
 	}
 
@@ -307,20 +312,19 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					if (numBases > 0 && !caughtRunning) {
 						numBases--;
 						moveRunner();
-					} 
-					else if(numBases > 0 && caughtRunning){
+					} else if (numBases > 0 && caughtRunning) {
 						numBases--;
 						caughtRunner(runnerCaught);
-						if(numBases == 0){
+						if (numBases == 0) {
 							incrementOut();
 						}
-					} else if(numBases == 0 && stretch){
+					} else if (numBases == 0 && stretch) {
 						numBases = 1;
 						panel.repaint();
 					}
 					if (clickCount == 1) {
-						clickCount = 0;	
-						incrementStrike();				
+						clickCount = 0;
+						incrementStrike();
 					}
 				}
 
@@ -403,7 +407,13 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				g.drawString("Pause - E", 0, 700);
 				g.drawString("Power - P", 0, 725);
 				g.drawString("Steal - S", 0, 750);
-				
+
+				if(!playing) {
+					newFont = new Font("Arial", Font.BOLD, 30);
+					g.setFont(newFont);
+					g.drawString(endGameText, pWidth / 2 - (strWidth / 2) - 120, pHeight / 2 -
+					ascent);
+				}
 
 				for (int i = 0; i < 7; i++) {
 					labels[0][i].setBackground(Color.white);
@@ -494,7 +504,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			newBall.start();
 			panel.repaint();
 			clickCount = 1;
-			
 
 		} else if (list.size() > 0 && clickCount == 1) {
 			// mouse clicked for second time while ball is in screen
@@ -730,7 +739,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				temp[i] = false;
 			}
 		}
-		
+
 		panel.repaint();
 	}
 
@@ -756,8 +765,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		if (power) {
 			if (c != 2) {
 				c = 0;
-			}
-			else{
+			} else {
 				Random r = new Random();
 				c = r.nextInt(3) + 1;
 			}
@@ -775,12 +783,14 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				if (curInning < 4) {
 					curInning++;
 				} else {
-					if (team1Score[5] > team2Score[5])
-						displayText = teamName1 + "wins!";
-					else if (team2Score[5] > team1Score[5])
-						displayText = teamName2 + "wins!";
-					else {
-						displayText = "Game is tied! We're going to extras!";
+					if (team1Score[5] > team2Score[5]) {
+						endGameText = teamName1 + " wins!";
+						playing = false;
+					} else if (team2Score[5] > team1Score[5]) {
+						endGameText = teamName2 + " wins!";
+						playing = false;
+					} else {
+						endGameText = "Game is tied! We're going to extras!";
 						curInning = 5;
 					}
 				}
@@ -788,7 +798,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			} else {
 				if (curInning == 4) {
 					if (team2Score[5] > team1Score[5])
-						displayText = teamName2 + "wins!";
+						playing = false;
+						endGameText = teamName2 + " wins";
 				}
 			}
 			outs = 0;
@@ -796,6 +807,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				runnerCheck[i] = false;
 			}
 		}
+		panel.repaint();
 	}
 
 	private void incrementStrike() {
@@ -809,7 +821,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	}
 
-	private void caughtRunner(int runner){
+	private void caughtRunner(int runner) {
 		draw = false;
 		boolean temp[] = new boolean[3];
 		for (int i = runnerCheck.length - 1; i >= 0; i--) {
@@ -826,7 +838,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		}
 		for (int i = 0; i < runnerCheck.length; i++) {
 			if (temp[i]) {
-				if(i == runner + 1){
+				if (i == runner + 1) {
 					runnerCheck[i] = false;
 				} else {
 					runnerCheck[i] = true;
@@ -836,7 +848,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		}
 		panel.repaint();
 	}
-	
 
 	public static void main(String args[]) {
 
@@ -939,7 +950,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		
+
 	}
 
 	@Override
@@ -948,7 +959,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			Random rand = new Random();
 			int chance = rand.nextInt(10);
 
-			
 			if (list.size() == 0) {
 				if (runnerCheck[2]) {
 					chance = 5;
@@ -965,23 +975,23 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						}
 					}
 				}
-			} 
-			//else {
-			//	if(chance < 4){
-			//		stretch = true;
-			//		System.out.println(numBases);
-			//	} else {
-			//		for (int i = 2; i > 0; i--) {
-			//			if (runnerCheck[i]) {
-			//				caughtRunning = true;
-			//				runnerCaught = i;
-			//				System.out.println(numBases);
-			//				break;
-			//			}
-			//			stretch = true;
-			//		}
-			//	}
-			//}
+			}
+			// else {
+			// if(chance < 4){
+			// stretch = true;
+			// System.out.println(numBases);
+			// } else {
+			// for (int i = 2; i > 0; i--) {
+			// if (runnerCheck[i]) {
+			// caughtRunning = true;
+			// runnerCaught = i;
+			// System.out.println(numBases);
+			// break;
+			// }
+			// stretch = true;
+			// }
+			// }
+			// }
 
 			panel.repaint();
 
