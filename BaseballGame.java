@@ -995,14 +995,17 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			optionFrame.setVisible(false);
 		}
 		if (e.getSource().equals(endGame)) {
-			curInning = 5;
+			curInning = 4;
+			team = 2;
 			outs = 2;
-			incrementOut();
-
 			if (team1Score[5] == team2Score[5]) {
 				endGameText = "Game has ended in a tie!";
 				playing = false;
+			} else {
+				incrementOut();
 			}
+
+			
 
 		}
 		if (e.getSource().equals(skipInning)) {
