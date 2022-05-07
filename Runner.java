@@ -3,11 +3,9 @@ import javax.swing.*;
 import java.awt.geom.Point2D;
 
 /**
- * The FallingBall class is responsible for managing the life of
- * one ball that falls down the screen, stopping when it reaches the
- * bottom of the window.
+ * The Runner class is responsible for the runners moving to the next base
  *
- * @author
+ * @author Justin Montagne, Sam Goldstein, Arizona Belden, and Anthony Russo
  * @version Spring 2022
  */
 public class Runner extends AnimatedGraphicsObject {
@@ -19,31 +17,36 @@ public class Runner extends AnimatedGraphicsObject {
     // animation looks smooth to the human eye and brain
     public static final int DELAY_TIME = 33;
 
+    //color of the runner
     private Color color;
 
+    //current base the runner is on
     private int curBase;
 
+    //current point of the runner
     private Point2D.Double upperLeft;
-
+    //endpoint of the runner
     private Point2D.Double endPoint;
 
+    //pixels to move
     private double xSpeed;
     private double ySpeed;
 
-    private Point2D.Double firstBase = new Point2D.Double(480, 475);
-    private Point2D.Double secondBase = new Point2D.Double(390, 370);
-    private Point2D.Double thirdBase = new Point2D.Double(290, 475);
-    private Point2D.Double homePlate = new Point2D.Double(385, 585);
+    //The location of the bases
+    private static final Point2D.Double firstBase = new Point2D.Double(480, 475);
+    private static final Point2D.Double secondBase = new Point2D.Double(390, 370);
+    private static final Point2D.Double thirdBase = new Point2D.Double(290, 475);
+    private static final Point2D.Double homePlate = new Point2D.Double(385, 585);
 
-    // who do we live in so we can repaint?
+    // panel
     private JComponent container;
 
     /**
-     * Construct a new FallingBall object.
+     * Construct a new Runner object.
      *
      * @param numBases  Number of bases the runner can reach
      *
-     * @param container the Swing component in which this ball is being
+     * @param container the Swing component in which this runner is being
      *                  drawn to allow it to call that component's repaint
      *                  method
      */
@@ -54,6 +57,7 @@ public class Runner extends AnimatedGraphicsObject {
         this.container = container;
         this.curBase = curBase;
 
+        //Calculate where the runner should start and end
         if (curBase == 1) {
             upperLeft = firstBase;
             endPoint = secondBase;
@@ -72,20 +76,18 @@ public class Runner extends AnimatedGraphicsObject {
             
         }
 
+        //Calculate the speed of the ball
         double xMove = endPoint.x - upperLeft.x;
         double yMove = endPoint.y - upperLeft.y;
 
         ySpeed = yMove / 45;
         xSpeed = xMove / 45;
-
-
-
     }
 
     /**
      * Draw the runner at its current location.
      *
-     * @param g the Graphics object on which the ball should be drawn
+     * @param g the Graphics object on which the runner should be drawn
      */
     public void paint(Graphics g) {
         g.setColor(color);
@@ -93,9 +95,9 @@ public class Runner extends AnimatedGraphicsObject {
     }
     /**
      * Checks if the runner is within 5 pixels of the base
-     * @param s
-     * @param e
-     * @return
+     * @param s runner
+     * @param e base
+     * @return if runner is near the base
      */
     public boolean near(Point2D.Double s, Point2D.Double e) {
         if (s.x > e.x - 5 && s.x < e.x + 5) {
@@ -127,7 +129,7 @@ public class Runner extends AnimatedGraphicsObject {
             
             upperLeft.setLocation(upperLeft.x + xSpeed, upperLeft.y + ySpeed);
             
-            // if we want to see the ball move to its new position, we
+            // if we want to see the runner move to its new position, we
             // need to schedule a paint event on this container
             container.repaint();
         }

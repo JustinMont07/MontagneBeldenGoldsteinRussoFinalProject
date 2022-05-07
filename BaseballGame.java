@@ -10,70 +10,72 @@ import javax.swing.border.Border;
 import java.awt.geom.Point2D;
 
 /**
- * A program to create BaseballGames wherever you press and hold
+ * A program to create a baseball game
  * 
- * @author Justin Montagne
+ * @author Justin Montagne, Sam Goldstein, Arizona Belden, and Anthony Russo
  * @version Spring 2022
  */
 
 public class BaseballGame extends MouseAdapter implements Runnable, ActionListener, KeyListener {
 
-	// The message to be displayed if no BaseballGames on screen
+	// The message to be displayed during an event
 	private String displayText = "";
 
-	// list of BaseballGame objects currently in existence
+	// list of Animated objects currently in existence
 	private java.util.List<AnimatedGraphicsObject> list;
 
+	//Game panel
 	private JPanel panel;
 
-	// Checks if mouse is pressed
-	private boolean pressed = false;
-
-	// Marks where mouse was pressed
-	private Point pressPoint;
-
-	// Size of the BaseballGame
-	private int size;
-
+	//Scoreboard panel
 	private JPanel scoreBoard;
 
+	//Team 1 (Away team) score
 	private int[] team1Score = new int[6];
 
+	//Team 2 (Home team) score
 	private int[] team2Score = new int[6];
 
+	//Checks if a runner should be drawn on this base
 	private boolean[] runnerCheck = new boolean[3];
 
-	private Point2D.Double firstBase = new Point2D.Double(480, 475);
-	private Point2D.Double secondBase = new Point2D.Double(390, 370);
-	private Point2D.Double thirdBase = new Point2D.Double(290, 475);
-	private Point2D.Double homePlate = new Point2D.Double(385, 585);
+	//Points for the bases
+	private static final Point2D.Double firstBase = new Point2D.Double(480, 475);
+	private static final Point2D.Double secondBase = new Point2D.Double(390, 370);
+	private static final Point2D.Double thirdBase = new Point2D.Double(290, 475);
+	private static final Point2D.Double homePlate = new Point2D.Double(385, 585);
 
+	//Points for the fielders
 	private static final Point2D.Double LEFT_FIELDER = new Point2D.Double(230, 250);
 	private static final Point2D.Double CENTER_FIELDER = new Point2D.Double(390, 200);
 	private static final Point2D.Double RIGHT_FIELDER = new Point2D.Double(550, 250);
 
+	//Number of outs
 	private int outs;
 
+	//Number of strikes
 	private int strikes;
 
+	//The team (1 = away, 2 = home)
 	private int team;
+	//The current inning
 	private int curInning;
-
+	//Number of extra bases the runners should move
 	private int numBases;
-
+	//Labels for the scoreboard
 	private JLabel labels[][] = new JLabel[3][7];
-
+	//Lock for synchronization
 	private Object lock = new Object();
-
+	//Check if power swing is enabled
 	private boolean power;
-
+	//Check if game is currently active
 	private boolean playing;
-
+	//Text for the end of the game
 	private String endGameText;
 
-	// 4 hits
-	// 2 singles , 2 doubles, 1 triple, 5 outs , 1 hr
-	// 5 Point2D.Doubles for hits, 5 Point2D.Doubles for outs, 1 for home run
+	
+	// 2 singles , 2 doubles, 1 triple, 7 outs , 1 hr for each area of the field
+	
 	private Point2D.Double[] leftField = new Point2D.Double[] {
 			new Point2D.Double(175, 200), new Point2D.Double(200, 325),
 			new Point2D.Double(270, 200), new Point2D.Double(150, 250),
@@ -103,21 +105,22 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			new Point2D.Double(500, 250),
 			new Point2D.Double(660, 115) };
 
+	//Image of the field
 	private Image field;
-
+	//Number of clicks
 	private int clickCount;
-
+	//Should the runners be drawn on the bases?
 	private boolean draw;
-
+	//Which zone the player hit in
 	private int location;
-
+	//Should the fielders be drawn?
 	private boolean drawFielders;
-
+	//Should the teams be changed after animations are done?
 	private boolean teamChange;
-
+	//Color of the fielders and runners
 	private Color fielderColor;
 	private Color runnerColor;
-
+	//Start menu stuff
 	private JPanel startMenu;
 	private JComboBox<String> colors;
 	private JComboBox<String> colors2;
@@ -126,51 +129,50 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 	private JPanel startButton;
 	private JButton start;
 	private JPanel startPanel;
-
-	private JFrame frame;
-
 	private JFrame startFrame;
 
+	//Frame for the game
+	private JFrame frame;
+
+	//Option menu stuff
 	private JFrame optionFrame;
-
 	private JButton continueGame;
-
 	private JPanel optionPanel;
-
 	private JButton skipInning;
-
 	private JButton endGame;
 
+	//Name of each team
 	private String teamName1;
 	private String teamName2;
 
+	//Color of each team
 	private Color team1Color;
 	private Color team2Color;
-
+	//Check if the fielder should be drawn
 	private boolean isOut;
-
+	//Check if the runner was caught while stealing
 	private boolean caughtRunning;
-
+	//Which runner was caught
 	private int runnerCaught;
-
+	//String for the teams changing
 	private String colorSwap;
 
-	// Start BaseballGame object which will draw the BaseballGame as it grows and
-	// allow us to get the final size of it
-	// private Baseball b;
 
 	public BaseballGame() {
+		//Construct labels
 		for (int i = 0; i < 7; i++) {
 			for (int j = 0; j < 3; j++) {
 				labels[j][i] = new JLabel();
 			}
 		}
+		//Get the field image
 		try {
 			field = ImageIO.read(new File("Field.jpg")).getScaledInstance(800, 800, Image.SCALE_DEFAULT);
 			;
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+		//Initializatin of variables
 		for (int j = 0; j < 3; j++) {
 			runnerCheck[j] = false;
 		}
@@ -195,10 +197,10 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		// the OS on which we are running
 		JFrame.setDefaultLookAndFeelDecorated(true);
 
-		// create a JFrame in which we will build our very
-		// tiny GUI, and give the window a name
+		
 		frame = new JFrame("BaseballGame");
 		frame.setPreferredSize(new Dimension(800, 800));
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		startFrame = new JFrame("Baseball Options");
 		startFrame.setPreferredSize(new Dimension(600, 600));
@@ -207,9 +209,8 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		optionFrame = new JFrame("Game Paused");
 		optionFrame.setPreferredSize(new Dimension(400, 400));
 		optionFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// tell the JFrame that when someone closes the
-		// window, the application should terminate
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		//Creating the start menu
 		team1Name = new JTextField("Enter Away Team Name");
 		team2Name = new JTextField("Enter Home Team Name");
 		String[] colorOptions = new String[] { "BLUE", "RED", "MAGENTA", "PINK", "GREEN", "ORANGE", "YELLOW" };
@@ -244,6 +245,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		colors.setSelectedItem("BLUE");
 		colors.setSelectedItem("RED");
 
+		//Creating the pause menu
 		optionPanel = new JPanel(new GridLayout(4, 1));
 		continueGame = new JButton("Resume");
 		endGame = new JButton("End Game");
@@ -264,8 +266,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			@Override
 			public void paintComponent(Graphics g) {
 
-				// first, we should call the paintComponent method we are
-				// overriding in JPanel
+				
 				super.paintComponent(g);
 				g.drawImage(field, 0, 0, null);
 
@@ -276,17 +277,17 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					// red - early - left
 					g.setColor(new Color(230, 0, 0, 100));
 					g.fillRect(369, 600, 60, 40);
-
+					// blue - late - right	
 					g.setColor(new Color(0, 0, 222, 100));
 					g.fillRect(369, 680, 60, 40);
 				}
-				// Green - middle -
+				// Green - middle - center
 				g.setColor(new Color(0, 234, 0, 100));
 				g.fillRect(369, 640, 60, 40);
 
-				// blue - late - right
+				
 
-				// redraw each BaseballGame's contents, and along the
+				// redraw each Animated object's contents, and along the
 				// way, remove the ones that are done
 
 				synchronized (lock) {
@@ -301,7 +302,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						}
 					}
 				}
-				// checks if the list is empty, redraws the fielders and runner
+				// checks if the list is empty, redraws the fielders and runners
 				if (list.size() == 0) {
 					draw = true;
 					drawFielders = false;
@@ -310,6 +311,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					if (numBases > 0 && !caughtRunning) {
 						numBases--;
 						moveRunner();
+					//Checks if runners should move but not stay at the end location
 					} else if (numBases > 0 && caughtRunning) {
 						numBases--;
 						caughtRunner(runnerCaught);
@@ -317,12 +319,14 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 							incrementOut();
 						} 
 					}
+					//If no second click set click count back to 0 and then increment the strikes
 					if (clickCount == 1) {
 						clickCount = 0;
 						incrementStrike();
 					}
 				}
-
+				//If the team should change wait until list size is 0 (All animations done)
+				//and then change the color of everything
 				if (teamChange) {
 					if (list.size() == 0) {
 						if (team == 1)
@@ -333,6 +337,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					}
 				}
 
+				//Sets the color of the fielders and runners to the selected colors
 				if (team == 1) {
 					runnerColor = team1Color;
 					fielderColor = team2Color;
@@ -340,6 +345,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					runnerColor = team2Color;
 					fielderColor = team1Color;
 				}
+				//Draws the fielders on the screen
 				g.setColor(fielderColor);
 				if (drawFielders) {
 
@@ -363,6 +369,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					g.fillOval(550, 250, 20, 20);
 				}
 
+				//Draws the runners on the field
 				g.setColor(runnerColor);
 				if (draw) {
 
@@ -389,8 +396,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				g.setFont(newFont);
 				if (list.size() != 0) {
 					int x = 0;
-					int y = 0;
-					// 27
 					if (displayText.equals("Out!")) {
 						x = 652;
 
@@ -408,7 +413,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				} else {
 					displayText = "";
 				}
-				// color swap
+				// Team change
 				newFont = new Font("arial", Font.BOLD, 17);
 				g.setFont(newFont);
 				if (!colorSwap.equals("") && list.size() == 0) {
@@ -416,6 +421,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					g.drawString(colorSwap, 610, 670 + (100 - ascent) / 2);
 				}
 
+				//On screen text that is always there
 				newFont = new Font("arial", Font.BOLD, 18);
 				g.setFont(newFont);
 
@@ -426,6 +432,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				g.drawString("Power - P", 15, 725);
 				g.drawString("Steal - S", 15, 750);
 
+				//Box for the contols and the area that displays what happened in the play
 				Graphics2D menueBox = (Graphics2D) g;
 				menueBox.setStroke(new BasicStroke(5));
 
@@ -434,6 +441,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				// right box - status
 				menueBox.drawRect(600, 655, 160, 100);
 
+				//If the game is over, display a message as to who won
 				if (!playing) {
 					newFont = new Font("Arial", Font.BOLD, 30);
 					g.setFont(newFont);
@@ -447,14 +455,15 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 							ascent + 40);
 				}
 
+				//Set the labels back to default
 				for (int i = 0; i < 7; i++) {
 					labels[0][i].setBackground(Color.white);
 					labels[1][i].setBorder(BorderFactory.createLineBorder(Color.black));
 					labels[2][i].setBorder(BorderFactory.createLineBorder(Color.black));
 				}
-
+				//Sets the inning background color in the scoreboard to green
 				labels[0][curInning + 1].setBackground(Color.green);
-
+				//Sets the border of the current half inninng we are in
 				if (!teamChange) {
 					if (team == 1) {
 						labels[1][curInning + 1].setBorder(BorderFactory.createLineBorder(team1Color, 2));
@@ -462,30 +471,34 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						labels[2][curInning + 1].setBorder(BorderFactory.createLineBorder(team2Color, 2));
 					}
 				} else {
+					//Makes sure it doesn't change which box has a border to early
 					labels[1][curInning + 1].setBorder(BorderFactory.createLineBorder(team1Color, 2));
 				}
 
 			}
 		};
+		//Addig everything to the game
 		scoreBoard = new JPanel(new GridLayout(3, 7));
 		scoreBoard.setOpaque(true);
 		frame.add(panel);
 		panel.add(scoreBoard, BorderLayout.NORTH);
 
+		//Initializing all the text
 		for (int i = 1; i < 6; i++) {
 			labels[0][i].setText("" + i);
 		}
 		labels[0][6].setText("Runs");
 		for (int i = 1; i < 7; i++) {
 			labels[1][i].setText("" + 0);
-		}
-		for (int i = 1; i < 7; i++) {
 			labels[2][i].setText("" + 0);
 		}
+		
+		//Intialize the first column of text
 		labels[0][0].setText("Inning");
 		labels[1][0].setText("" + teamName1);
 		labels[2][0].setText("" + teamName2);
 
+		//Sets the look of the labels
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 7; j++) {
 				scoreBoard.add(labels[i][j]);
@@ -495,16 +508,18 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 			}
 		}
-
+		
+		//Puts a border around the scoreboard
 		scoreBoard.setBorder(BorderFactory.createLineBorder(Color.black));
 
+		//Mouse listener and key listener
 		panel.addMouseListener(this);
 		frame.addKeyListener(this);
 
 		// construct the list
 		list = new ArrayList<AnimatedGraphicsObject>();
 
-		// display the window we've created
+		
 		frame.pack();
 
 		frame.setResizable(false);
@@ -515,26 +530,28 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 	}
 
 	/**
-	 * First click pitches the ball and the second click simulates a hit if you
-	 * click while the ball is in the strike zone
+	 * mousePressed method first checks if the game is going.
+	 * Game is being played:
+	 * 		First click starts the pitch, second click is the swing
+	 * Game is not being played:
+	 * 		Click restarts the game
 	 * 
 	 * @param e mouse event info
 	 */
 	@Override
 	public void mousePressed(MouseEvent e) {
+		//Check if the game is currently playing
 		if (playing) {
 
 			colorSwap = "";
-			// ball drops from homebase
+			// ball drops from the pitchers mound
 			if (list.size() == 0) {
 
 				caughtRunning = false;
 				Ball newBall = new Ball(new Point2D.Double(433, 470), panel, 5);
 				list.add(newBall);
 
-				// calling start on the object that extends Thread results in
-				// its run method being called once the operating system and
-				// JVM have set up the thread
+				//Starting the ball
 				newBall.start();
 				panel.repaint();
 				clickCount = 1;
@@ -544,8 +561,10 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 				Random r = new Random();
 
+				//Check which zone the ball was in on second click
 				location = contains(((Ball) list.get(0)).getLocation());
 
+				//Generate the number that will be used to determine a hit or not
 				int hit;
 				drawFielders = true;
 				if (power == true) {
@@ -554,14 +573,17 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					hit = r.nextInt(13);
 				}
 
+				//If the ball was hit in the first zone
 				if (location == 1) {
 					strikes = 0;
+					//Hit the ball to leftfield at the random hit spot
 					Hit newHit = new Hit(new Point2D.Double(385, 600), panel, leftField[hit]);
 
 					list.add(newHit);
 					newHit.start();
 					panel.repaint();
 
+					//If the number is 0 or 1, single
 					if (hit < 2) {
 						displayText = "Single!";
 						moveRunner();
@@ -570,7 +592,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						runnerCheck[0] = true;
-
+					//If number is 2 or 3, double
 					} else if (hit < 4) {
 						displayText = "Double!";
 						moveRunner();
@@ -579,7 +601,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						runnerCheck[0] = true;
-
+					//If number is 4, triple
 					} else if (hit == 4) {
 						displayText = "Triple!";
 						moveRunner();
@@ -588,6 +610,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						runnerCheck[0] = true;
+					//If number is between 5 and 11, out
 					} else if (hit < 12) {
 						incrementOut();
 						displayText = "Out!";
@@ -598,6 +621,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						isOut = true;
+					//If number is 12, Homerun
 					} else {
 						displayText = "Homerun!";
 						moveRunner();
@@ -610,7 +634,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					}
 					list.get(0).done = true;
 					panel.repaint();
-
+				//If ball hit in second zone
 				} else if (location == 2) {
 					strikes = 0;
 					Hit newHit = new Hit(new Point2D.Double(385, 620), panel, centerField[hit]);
@@ -618,7 +642,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					list.add(newHit);
 					newHit.start();
 					panel.repaint();
-
+					//If the number is 0 or 1, single
 					if (hit < 2) {
 						displayText = "Single!";
 						moveRunner();
@@ -627,7 +651,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						runnerCheck[0] = true;
-
+					//If number is 2 or 3, double
 					} else if (hit < 4) {
 						displayText = "Double!";
 						moveRunner();
@@ -636,7 +660,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						runnerCheck[0] = true;
-
+					//If number is 4, triple
 					} else if (hit == 4) {
 						displayText = "Triple!";
 						moveRunner();
@@ -645,6 +669,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						runnerCheck[0] = true;
+					//If number is between 5 and 11, out
 					} else if (hit < 12) {
 						incrementOut();
 						displayText = "Out!";
@@ -655,6 +680,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						isOut = true;
+					//If number is 12, Homerun
 					} else {
 						displayText = "Homerun!";
 						moveRunner();
@@ -666,6 +692,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 					}
 					list.get(0).done = true;
+				//If ball hit in third zone
 				} else if (location == 3) {
 					strikes = 0;
 					Hit newHit = new Hit(new Point2D.Double(385, 660), panel, rightField[hit]);
@@ -674,6 +701,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 					newHit.start();
 					panel.repaint();
 
+					//If the number is 0 or 1, single
 					if (hit < 2) {
 						displayText = "Single!";
 						moveRunner();
@@ -682,7 +710,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						runnerCheck[0] = true;
-
+					//If number is 2 or 3, double
 					} else if (hit < 4) {
 						displayText = "Double!";
 						moveRunner();
@@ -691,7 +719,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						runnerCheck[0] = true;
-
+					//If number is 4, triple
 					} else if (hit == 4) {
 						displayText = "Triple!";
 						moveRunner();
@@ -700,6 +728,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						runnerCheck[0] = true;
+					//If number is between 5 and 11, out
 					} else if (hit < 12) {
 						incrementOut();
 						displayText = "Out!";
@@ -710,6 +739,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 						list.add(newRunner);
 						newRunner.start();
 						isOut = true;
+					//If number is 12, Homerun
 					} else {
 						displayText = "Homerun!";
 						moveRunner();
@@ -723,15 +753,15 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 					list.get(0).done = true;
 				}
-
+				//If ball not hit in any zone
 				else {
-
 					list.get(0).done = true;
 					incrementStrike();
 				}
 				clickCount = 0;
 			}
 
+		//If you click when game has ended
 		} else {
 			playing = true;
 
@@ -754,8 +784,13 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		}
 	}
 
+	/**
+	 * The moveRunner method stops the runner from being drawn, 
+	 * then starts all the runners moving to the next base
+	 */
 	public void moveRunner() {
 		draw = false;
+		//Temp array to mark the next base as true when a runner is moving there
 		boolean temp[] = new boolean[3];
 		for (int i = runnerCheck.length - 1; i >= 0; i--) {
 			if (runnerCheck[i]) {
@@ -764,11 +799,13 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				Runner curRunner = new Runner(runnerColor, i + 1, panel);
 				list.add(curRunner);
 				curRunner.start();
+				//If the runner is on third
 				if (i == 2) {
 					if (team == 1) {
+						//Not the sixth inning (extra innings)
 						if (curInning != 5)
 							team1Score[curInning]++;
-
+						//Increment the total score of that team
 						team1Score[5]++;
 						labels[1][curInning + 1].setText("" + team1Score[curInning]);
 						labels[1][6].setText("" + team1Score[5]);
@@ -782,11 +819,13 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 					}
 				}
+				//Makes sure i isn't 2 so that it doesn't set home to true
 				if (i != 2) {
 					temp[i + 1] = true;
 				}
 			}
 		}
+		//Transfers over the information from temp to runnerCheck
 		for (int i = 0; i < runnerCheck.length; i++) {
 			if (temp[i]) {
 				runnerCheck[i] = true;
@@ -797,6 +836,11 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		panel.repaint();
 	}
 
+	/**
+	 * The contains method checks which zone the point (or pitch) is in
+	 * @param p The point of the pitch when called
+	 * @return Which zone the ball was hit in
+	 */
 	public int contains(Point2D.Double p) {
 
 		int c = 0;
@@ -816,6 +860,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			c = 3;
 
 		}
+		//If power, select a random zone to say the ball was in so that the hit can go anywhere
 		if (power) {
 			if (c != 2) {
 				c = 0;
@@ -828,13 +873,21 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	}
 
+	/**
+	 * Increments the outs but also checks if the inning should change or if the game should end
+	 */
 	private void incrementOut() {
+		//if less than 2 outs, increase the number of outs
 		if (outs != 2) {
 			outs++;
+		//If outs = 2
 		} else {
+			//Change the team
 			teamChange = true;
+			//Set power to false so next player starts on default hitting mode
 			power = false;
 			colorSwap = "Changing Sides!";
+			//Checks if we need to switch innnings
 			if (team == 2) {
 				if (curInning < 4) {
 					curInning++;
@@ -852,12 +905,14 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 				}
 
 			} else {
+				//Checks if the home team is winning after the away team hit in the fifth inning
 				if (curInning == 4) {
 					if (team2Score[5] > team1Score[5])
 						playing = false;
 					endGameText = teamName2 + " wins";
 				}
 			}
+			//If we switch innings set the outs to 0 and gets rid of the runners on base
 			outs = 0;
 			for (int i = 0; i < runnerCheck.length; i++) {
 				runnerCheck[i] = false;
@@ -866,9 +921,14 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		panel.repaint();
 	}
 
+	/**
+	 * Increments the strikes and checks if the outs should also increment
+	 */
 	private void incrementStrike() {
+		//If less than 2 strikes increase strikes
 		if (strikes != 2) {
 			strikes++;
+		//Increment outs if strikes = 2
 		} else {
 			incrementOut();
 			strikes = 0;
@@ -877,6 +937,10 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	}
 
+	/**
+	 * Moves the runners if someone was caught stealing, only the lead runner is out
+	 * @param runner The runner that shouldn't be drawn on the base after they run
+	 */
 	private void caughtRunner(int runner) {
 		draw = false;
 		boolean temp[] = new boolean[3];
@@ -905,18 +969,12 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		panel.repaint();
 	}
 
-	public static void main(String args[]) {
-
-		Ball.loadBallPic();
-		Hit.loadBallPic();
-
-		// launch the main thread that will manage the GUI
-		javax.swing.SwingUtilities.invokeLater(new BaseballGame());
-
-	}
-
+	/**
+	 * Checks which button was pressed, sets the team color, sets the team name
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		//Start menu stuff
 		if (e.getSource().equals(start)) {
 
 			startFrame.setVisible(false);
@@ -990,6 +1048,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			labels[2][0].setText(teamName2);
 		}
 
+		//Pause menu stuff
 		if (e.getSource().equals(continueGame)) {
 			frame.setVisible(true);
 			optionFrame.setVisible(false);
@@ -1004,9 +1063,6 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			} else {
 				incrementOut();
 			}
-
-			
-
 		}
 		if (e.getSource().equals(skipInning)) {
 			outs = 2;
@@ -1015,11 +1071,20 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 
 	}
 
+	/**
+	 * keyTyped not used
+	 */
 	@Override
 	public void keyTyped(KeyEvent e) {
 
 	}
 
+	/**
+	 * Checks which key was pressed
+	 * s - steal runners if theyre on base
+	 * p - activate power swing
+	 * e - pause
+	 */
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_S) {
@@ -1027,6 +1092,7 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 			int chance = rand.nextInt(10);
 
 			if (list.size() == 0) {
+				//If runner on third, guarenteed to be caught stealing
 				if (runnerCheck[2]) {
 					chance = 5;
 				}
@@ -1065,7 +1131,25 @@ public class BaseballGame extends MouseAdapter implements Runnable, ActionListen
 		}
 	}
 
+	/**
+	 * keyReleased not used
+	 */
 	@Override
 	public void keyReleased(KeyEvent e) {
+	}
+
+	/**
+	 * Main method for Baseball Game class
+	 *
+	 */
+	public static void main(String args[]) {
+
+		//Loads the baseball picture
+		Ball.loadBallPic();
+		Hit.loadBallPic();
+
+		// launch the main thread that will manage the GUI
+		javax.swing.SwingUtilities.invokeLater(new BaseballGame());
+
 	}
 }

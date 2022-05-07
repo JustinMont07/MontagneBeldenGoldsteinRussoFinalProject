@@ -4,11 +4,9 @@ import java.awt.geom.Point2D;
 import java.util.Random;
 
 /**
- * The FallingBall class is responsible for managing the life of
- * one ball that falls down the screen, stopping when it reaches the
- * bottom of the window.
+ * The Ball class is in charge of the pitch being dropped from the pitchers mound
  * 
- * @author 
+ * @author Justin Montagne, Sam Goldstein, Arizona Belden, and Anthony Russo
  * @version Spring 2022
  */
  class Ball extends AnimatedGraphicsObject{
@@ -26,22 +24,22 @@ import java.util.Random;
     // latest location of the ball
     private Point2D.Double upperLeft;
 
-    // how far to fall?
+    // Bottom of the panel
     private int bottom;
 
-
+    //Image of the baseball
     private static Image baseballPic;
 
-
+    //File name for the baseball
     private static final String ballPicFilename = "baseball.gif";
 
 
 
-    // who do we live in so we can repaint?
+    //container (or panel in this case)
     private JComponent container;
 
     /**
-     * Construct a new FallingBall object.
+     * Construct a new Ball object.
      * 
      * @param startTopCenter the initial Point2D.Double at which the top of the
      *                       ball should be drawn
@@ -53,6 +51,7 @@ import java.util.Random;
         super(container);
         Random r = new Random();
 
+        //Original point is based on the center of the ball so calcuate the upperleft corner
         upperLeft = new Point2D.Double(startTopCenter.x - 100 / 2, startTopCenter.y);
         this.bottom = container.getHeight();
         this.container = container;
@@ -66,10 +65,7 @@ import java.util.Random;
      */
     public void paint(Graphics g) {
 
-       // g.fillOval(upperLeft.x, upperLeft.y, SIZE, SIZE);
-
        g.drawImage(baseballPic, (int)upperLeft.x, (int)upperLeft.y, null);
-
 
     }
 
@@ -96,8 +92,6 @@ import java.util.Random;
             // by a pixel
             upperLeft.setLocation(upperLeft.x, upperLeft.y + ySpeed);
 
-            // if we want to see the ball move to its new position, we
-            // need to schedule a paint event on this container
             container.repaint();
         }
 
@@ -117,8 +111,8 @@ import java.util.Random;
     }
 
     /**
-     * Set the Image to be used by all Ball objects, to be
-     * called by the main method before the GUI gets set up
+     * Gets the location of the ball
+     * This is used to check which zone the ball is in
      */
     public Point2D.Double getLocation() {
 

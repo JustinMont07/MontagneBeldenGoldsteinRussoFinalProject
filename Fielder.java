@@ -3,11 +3,9 @@ import javax.swing.*;
 import java.awt.geom.Point2D;
 
 /**
- * The FallingBall class is responsible for managing the life of
- * one ball that falls down the screen, stopping when it reaches the
- * bottom of the window.
+ * The Fielder class is in charge of the fielders who are moving to catch the fielder
  * 
- * @author
+ * @author Justin Montagne, Sam Goldstein, Arizona Belden, and Anthony Russo
  * @version Spring 2022
  */
 class Fielder extends AnimatedGraphicsObject {
@@ -24,9 +22,10 @@ class Fielder extends AnimatedGraphicsObject {
 
     public double xSpeed;
 
-    // latest location of the ball
+    // latest location of the fielder
     private Point2D.Double upperLeft;
 
+    //Where the fielder should stop
     private Point2D.Double endPoint;
 
     private static final int SIZE = 20;
@@ -37,11 +36,11 @@ class Fielder extends AnimatedGraphicsObject {
     private JComponent container;
 
     /**
-     * Construct a new FallingBall object.
+     * Construct a new Fielder object.
      * 
      * @param startTopCenter the initial point at which the top of the
-     *                       ball should be drawn
-     * @param container      the Swing component in which this ball is being
+     *                       fielder should be drawn
+     * @param container      the Swing component in which this fielder is being
      *                       drawn to allow it to call that component's repaint
      *                       method
      */
@@ -61,9 +60,9 @@ class Fielder extends AnimatedGraphicsObject {
     }
 
     /**
-     * Draw the ball at its current location.
+     * Draw the fielder at its current location.
      * 
-     * @param g the Graphics object on which the ball should be drawn
+     * @param g the Graphics object on which the fielder should be drawn
      */
     public void paint(Graphics g) {
 
@@ -74,7 +73,7 @@ class Fielder extends AnimatedGraphicsObject {
     }
 
     /**
-     * This object's run method, which manages the life of the ball as it
+     * This object's run method, which manages the life of the fielder as it
      * moves down the screen.
      */
     @Override
@@ -83,8 +82,8 @@ class Fielder extends AnimatedGraphicsObject {
         // the run method is what runs in this object's thread for the
         // time it is "alive"
 
-        // this Ball's life as a thread will continue as long as this
-        // ball is still located on the visible part of the screen
+        // this Fielder's life as a thread will continue as long as this
+        // fielder isn't near (within 5 pixels) of the endPoint
         while (!near(upperLeft, endPoint)) {
 
             try {
@@ -92,14 +91,15 @@ class Fielder extends AnimatedGraphicsObject {
             } catch (InterruptedException e) {
             }
 
-            // every 30 ms or so, we move the coordinates of the ball down
+            // every 30 ms or so, we move the coordinates of the fielder down
             // by a pixel
             upperLeft.setLocation(upperLeft.x + xSpeed, upperLeft.y + ySpeed);
 
-            // if we want to see the ball move to its new position, we
+            // if we want to see the fielder move to its new position, we
             // need to schedule a paint event on this container
             container.repaint();
         }
+        //Sleep 2/10s of a second before disapearing 
         try{
             sleep(200);
         } catch (InterruptedException e) {
@@ -109,6 +109,12 @@ class Fielder extends AnimatedGraphicsObject {
         container.repaint();
     }
 
+    /**
+     * Checks if the S (fielder) is near the endPoint e
+     * @param s the fielder
+     * @param e the endPoint
+     * @return If s is within 5 pixels of e
+     */
     public boolean near(Point2D.Double s, Point2D.Double e) {
         if (s.x > e.x - 5 && s.x < e.x + 5) {
             if (s.y > e.y - 5 && s.y < e.y + 5)

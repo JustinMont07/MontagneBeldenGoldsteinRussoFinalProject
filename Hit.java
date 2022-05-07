@@ -3,15 +3,13 @@ import javax.swing.*;
 import java.awt.geom.Point2D;
 
 /**
- * The FallingBall class is responsible for managing the life of
- * one ball that falls down the screen, stopping when it reaches the
- * bottom of the window.
+ * The hit class is in charge of the hit moving to the point calculated in the BaseballGame class
  * 
- * @author 
+ * @author Justin Montagne, Sam Goldstein, Arizona Belden, and Anthony Russo
  * @version Spring 2022
  */
- class Hit extends AnimatedGraphicsObject{
-      // delay time between frames of animation (ms)
+class Hit extends AnimatedGraphicsObject {
+    // delay time between frames of animation (ms)
 
     // we don't want to move too quickly, so a delay here of about 33
     // ms will make the loop in run go around about 30 times per
@@ -26,27 +24,20 @@ import java.awt.geom.Point2D;
 
     // latest location of the ball
     private Point2D.Double upperLeft;
-
+    // Endpoint of the hit
     private Point2D.Double endPoint;
-
-
-    
-
 
     private static Image baseballPic;
 
     private static final int SIZE = 30;
 
-
     private static final String ballPicFilename = "baseball.gif";
-
-
 
     // who do we live in so we can repaint?
     private JComponent container;
 
     /**
-     * Construct a new FallingBall object.
+     * Construct a new Hit object.
      * 
      * @param startTopCenter the initial point at which the top of the
      *                       ball should be drawn
@@ -59,7 +50,7 @@ import java.awt.geom.Point2D;
 
         this.upperLeft = upperLeft;
         this.container = container;
-        this.endPoint= endPoint;
+        this.endPoint = endPoint;
         double xMove = endPoint.x - upperLeft.x;
         double yMove = endPoint.y - upperLeft.y;
 
@@ -75,11 +66,10 @@ import java.awt.geom.Point2D;
      */
     public void paint(Graphics g) {
 
-       // g.fillOval(upperLeft.x, upperLeft.y, SIZE, SIZE);
+        // g.fillOval(upperLeft.x, upperLeft.y, SIZE, SIZE);
 
-       g.drawImage(baseballPic, (int)upperLeft.x, (int)upperLeft.y, null);
-       //g.fillOval((int)endPoint.x, (int)endPoint.y, SIZE, SIZE);
-
+        g.drawImage(baseballPic, (int) upperLeft.x, (int) upperLeft.y, null);
+        // g.fillOval((int)endPoint.x, (int)endPoint.y, SIZE, SIZE);
 
     }
 
@@ -96,7 +86,6 @@ import java.awt.geom.Point2D;
         // this Ball's life as a thread will continue as long as this
         // ball is still located on the visible part of the screen
         while (!near(upperLeft, endPoint)) {
-        
 
             try {
                 sleep(DELAY_TIME);
@@ -115,16 +104,21 @@ import java.awt.geom.Point2D;
         done = true;
     }
 
-    public boolean near(Point2D.Double s, Point2D.Double e){
-        if(s.x > e.x -5 && s.x < e.x + 5){
-            if(s.y > e.y -5 && s.y < e.y + 5)
+    /**
+     * Checks if the S (Ball) is near the endPoint e
+     * @param s the fielder
+     * @param e the endPoint
+     * @return If s is within 5 pixels of e
+     */
+    public boolean near(Point2D.Double s, Point2D.Double e) {
+        if (s.x > e.x - 5 && s.x < e.x + 5) {
+            if (s.y > e.y - 5 && s.y < e.y + 5)
                 return true;
         }
-        
+
         return false;
     }
 
-    
     /**
      * Set the Image to be used by all Ball objects, to be
      * called by the main method before the GUI gets set up
@@ -133,19 +127,15 @@ import java.awt.geom.Point2D;
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
 
-         Hit.baseballPic = toolkit.getImage(ballPicFilename).getScaledInstance(30, 30, Image.SCALE_DEFAULT);
-
+        Hit.baseballPic = toolkit.getImage(ballPicFilename).getScaledInstance(30, 30, Image.SCALE_DEFAULT);
 
     }
-    
 
     /**
      * Set the Image to be used by all Ball objects, to be
      * called by the main method before the GUI gets set up
      */
     public Point2D.Double getLocation() {
-
-       
 
         return new Point2D.Double(upperLeft.x + 15, upperLeft.y + 15);
     }
